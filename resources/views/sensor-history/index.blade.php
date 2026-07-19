@@ -114,6 +114,34 @@
         text-align: center;
         color: #52656d;
     }
+    .history-pager {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        border-top: 1px solid #E8EFF1;
+    }
+    .history-page-btn {
+        border: 2px solid #E2EDF3;
+        border-radius: 10px;
+        background: #fff;
+        color: #52656d;
+        font-weight: 700;
+        text-decoration: none;
+        padding: 0.55rem 0.95rem;
+        box-shadow: 0 2px 6px rgba(31, 58, 95, 0.04);
+    }
+    .history-page-btn:hover,
+    .history-page-btn:focus {
+        border-color: #CFE2EC;
+        background: #F8FCFD;
+        color: #0b5f76;
+    }
+    .history-page-btn.disabled {
+        color: #A0AEB6;
+        pointer-events: none;
+        opacity: 0.75;
+    }
     @media (max-width: 767.98px) {
         .history-filter {
             width: 100%;
@@ -149,8 +177,8 @@
     @if(!$selectedTank)
         <div class="history-card empty-history">
             <div class="fw-semibold mb-2">No tank selected</div>
-            <div class="small mb-3">Add a tank before viewing sensor history.</div>
-            <a class="btn btn-primary" href="{{ route('tanks.create') }}">Add Tank</a>
+            <div class="small mb-3">Request a tank before viewing sensor history.</div>
+            <a class="btn btn-primary" href="{{ route('tank-requests.create') }}">Request New Tank</a>
         </div>
     @else
         @if($isDemo)
@@ -202,6 +230,19 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+            <div class="history-pager">
+                @if($historyRows->onFirstPage())
+                    <span class="history-page-btn disabled">Prev</span>
+                @else
+                    <a class="history-page-btn" href="{{ $historyRows->previousPageUrl() }}">Prev</a>
+                @endif
+
+                @if($historyRows->hasMorePages())
+                    <a class="history-page-btn" href="{{ $historyRows->nextPageUrl() }}">Next</a>
+                @else
+                    <span class="history-page-btn disabled">Next</span>
+                @endif
             </div>
         </section>
     @endif

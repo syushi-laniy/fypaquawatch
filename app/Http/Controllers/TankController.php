@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tank;
+use App\Models\TankRequest;
 use Illuminate\Http\Request;
 
 class TankController extends Controller
@@ -13,38 +14,12 @@ class TankController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('user.tanks.index', compact('tanks'));
-    }
+        $tankRequests = TankRequest::where('user_id', $request->user()->id)
+            ->with('tank')
+            ->latest()
+            ->get();
 
-    public function create()
-    {
-        return view('user.tanks.create');
-    }
-
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:50',
-            'status' => 'nullable|string|max:50',
-            'control_mode' => 'nullable|in:auto,manual',
-            'ph_sensor' => 'nullable|string|max:255',
-            'turbidity_sensor' => 'nullable|string|max:255',
-            'water_level_sensor' => 'nullable|string|max:255',
-            'dosing_device' => 'nullable|string|max:255',
-            'topup_device' => 'nullable|string|max:255',
-            'feeder_device' => 'nullable|string|max:255',
-        ]);
-
-        $data['status'] = $data['status'] ?? 'Active';
-        $data['control_mode'] = $data['control_mode'] ?? 'auto';
-        $data['user_id'] = $request->user()->id;
-
-        $tank = Tank::create($data);
-
-        $request->session()->put('selected_tank_id', $tank->id);
-
-        return redirect()->route('tanks.dashboard', $tank)->with('success', 'Tank added.');
+        return view('user.tanks.index', compact('tanks', 'tankRequests'));
     }
 
     public function show(Request $request, Tank $tank)
@@ -70,6 +45,7 @@ class TankController extends Controller
             'code' => 'nullable|string|max:50',
             'status' => 'nullable|string|max:50',
             'control_mode' => 'nullable|in:auto,manual',
+            'tank_height_cm' => 'nullable|numeric|min:1|max:999.99',
             'ph_sensor' => 'nullable|string|max:255',
             'turbidity_sensor' => 'nullable|string|max:255',
             'water_level_sensor' => 'nullable|string|max:255',

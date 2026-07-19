@@ -16,6 +16,13 @@ use Illuminate\Support\Facades\Http;
 
 class TelegramController extends Controller
 {
+    private const PH_DOSE_KEYS = [
+        'ph_up',
+        'ph_down',
+    ];
+
+    private const PH_DOSE_COOLDOWN_SECONDS = 5;
+
     public function handle(Request $request)
     {
         $this->ensureBotCommands();
@@ -52,7 +59,7 @@ class TelegramController extends Controller
             $user->telegram_link_token = null;
             $user->save();
 
-            $this->sendMenu($chatId, 'Linked successfully. Choose an AquaWatch action:');
+            $this->sendTankSelection($chatId, $user, 'Linked successfully. Choose the tank for Telegram controls, status, and alerts:');
             return response('ok', 200);
         }
 
@@ -78,6 +85,23 @@ class TelegramController extends Controller
             return response('ok', 200);
         }
 
+        if (str_starts_with($text, '/select')) {
+            if ($text === '/select') {
+                $this->sendTankSelection($chatId, $user);
+                return response('ok', 200);
+            }
+
+            $tank = $this->resolveTankForCommand($user, $text);
+            if (!$tank) {
+                $this->sendTankSelection($chatId, $user, 'Tank not found. Choose a tank:');
+                return response('ok', 200);
+            }
+
+            $this->selectTank($user, $tank);
+            $this->sendMenu($chatId, "Selected tank: {$tank->name}");
+            return response('ok', 200);
+        }
+
         if (str_starts_with($text, '/status')) {
             $tank = $this->resolveTankForCommand($user, $text);
             if (!$tank) {
@@ -90,13 +114,13 @@ class TelegramController extends Controller
         }
 
         if ($text === '/ph') {
-            $tank = $this->defaultTank($user);
+            $tank = $this->selectedTank($user);
             $this->sendMessage($chatId, $tank ? $this->parameterStatusText($tank, 'pH') : 'No tanks found for your account.');
             return response('ok', 200);
         }
 
         if ($text === '/turbidity') {
-            $tank = $this->defaultTank($user);
+            $tank = $this->selectedTank($user);
             $this->sendMessage($chatId, $tank ? $this->parameterStatusText($tank, 'Turbidity') : 'No tanks found for your account.');
             return response('ok', 200);
         }
@@ -160,11 +184,16 @@ class TelegramController extends Controller
                 $this->sendMessage($chatId, 'No tanks found for your account.');
                 return response('ok', 200);
             }
+            $selected = $this->selectedTank($user);
             $lines = ['Your tanks:'];
             foreach ($tanks as $tank) {
-                $lines[] = $tank->id . ' - ' . $tank->name;
+                $prefix = $selected && $selected->id === $tank->id ? '* ' : '';
+                $lines[] = $prefix . $tank->id . ' - ' . $tank->name;
             }
+            $lines[] = '';
+            $lines[] = 'Use /select <tank_id> to choose the tank for Telegram status, controls, and alerts.';
             $this->sendMessage($chatId, implode("\n", $lines));
+            $this->sendTankSelection($chatId, $user);
             return response('ok', 200);
         }
 
@@ -192,8 +221,26 @@ class TelegramController extends Controller
             return response('ok', 200);
         }
 
+        if ($data === 'select_tank') {
+            $this->sendTankSelection($chatId, $user);
+            return response('ok', 200);
+        }
+
+        if (str_starts_with($data, 'tank_select_')) {
+            $tankId = (int) substr($data, strlen('tank_select_'));
+            $tank = Tank::where('user_id', $user->id)->where('id', $tankId)->first();
+            if (!$tank) {
+                $this->sendTankSelection($chatId, $user, 'Tank not found. Choose a tank:');
+                return response('ok', 200);
+            }
+
+            $this->selectTank($user, $tank);
+            $this->sendMenu($chatId, "Selected tank: {$tank->name}");
+            return response('ok', 200);
+        }
+
         if ($data === 'status') {
-            $tank = $this->defaultTank($user);
+            $tank = $this->selectedTank($user);
             $this->sendMessage($chatId, $tank ? $this->tankStatusText($tank) : 'No tanks found for your account.');
             return response('ok', 200);
         }
@@ -216,15 +263,16 @@ class TelegramController extends Controller
         $this->sendMessage($chatId, $message, [
             'inline_keyboard' => [
                 [
+                    ['text' => 'Choose Tank', 'callback_data' => 'select_tank'],
+                ],
+                [
                     ['text' => 'Check Status', 'callback_data' => 'status'],
                 ],
                 [
-                    ['text' => 'pH Up ON', 'callback_data' => 'ph_up_on'],
-                    ['text' => 'pH Up OFF', 'callback_data' => 'ph_up_off'],
+                    ['text' => 'Dose pH Up', 'callback_data' => 'ph_up_dose'],
                 ],
                 [
-                    ['text' => 'pH Down ON', 'callback_data' => 'ph_down_on'],
-                    ['text' => 'pH Down OFF', 'callback_data' => 'ph_down_off'],
+                    ['text' => 'Dose pH Down', 'callback_data' => 'ph_down_dose'],
                 ],
                 [
                     ['text' => 'Turn ON Water Pump', 'callback_data' => 'water_pump_on'],
@@ -273,7 +321,7 @@ class TelegramController extends Controller
 
     private function ensureBotCommands(): void
     {
-        Cache::remember('telegram_bot_commands_registered_v3', now()->addDay(), function () {
+        Cache::remember('telegram_bot_commands_registered_v4', now()->addDay(), function () {
             $token = config('services.telegram.token');
             if (!$token) {
                 return true;
@@ -281,13 +329,13 @@ class TelegramController extends Controller
 
             Http::post("https://api.telegram.org/bot{$token}/setMyCommands", [
                 'commands' => [
+                    ['command' => 'tanks', 'description' => 'List and choose tanks'],
+                    ['command' => 'select', 'description' => 'Choose active tank'],
                     ['command' => 'status', 'description' => 'Check latest aquarium reading'],
                     ['command' => 'ph', 'description' => 'Check pH status'],
                     ['command' => 'turbidity', 'description' => 'Check water clarity status'],
-                    ['command' => 'ph_up_on', 'description' => 'Turn ON pH up pump'],
-                    ['command' => 'ph_up_off', 'description' => 'Turn OFF pH up pump'],
-                    ['command' => 'ph_down_on', 'description' => 'Turn ON pH down pump'],
-                    ['command' => 'ph_down_off', 'description' => 'Turn OFF pH down pump'],
+                    ['command' => 'ph_up_dose', 'description' => 'Request one pH up dose'],
+                    ['command' => 'ph_down_dose', 'description' => 'Request one pH down dose'],
                     ['command' => 'water_pump_on', 'description' => 'Turn ON water pump'],
                     ['command' => 'water_pump_off', 'description' => 'Turn OFF water pump'],
                     ['command' => 'feed_now', 'description' => 'Start fish feeding'],
@@ -311,13 +359,14 @@ class TelegramController extends Controller
         return implode("\n", [
             'AquaWatch commands:',
             '/menu - Show action buttons',
+            '/tanks - List and choose your tanks',
+            '/select <tank_id|tank_name> - Choose tank for Telegram',
             '/status - Check latest aquarium reading',
+            '/status <tank_id|tank_name> - Check a specific tank',
             '/ph - Check pH status',
             '/turbidity - Check water clarity status',
-            '/ph_up_on - Turn ON pH up pump',
-            '/ph_up_off - Turn OFF pH up pump',
-            '/ph_down_on - Turn ON pH down pump',
-            '/ph_down_off - Turn OFF pH down pump',
+            '/ph_up_dose - Request one pH up dose',
+            '/ph_down_dose - Request one pH down dose',
             '/water_pump_on - Turn ON water pump',
             '/water_pump_off - Turn OFF water pump',
             '/feed_now - Start fish feeding',
@@ -328,10 +377,10 @@ class TelegramController extends Controller
     private function commandToAction(string $text): ?array
     {
         return match ($text) {
-            '/ph_pump_on', '/ph_up_on' => ['device_key' => 'ph_up', 'state' => true, 'action' => 'pH up pump on'],
-            '/ph_pump_off', '/ph_up_off' => ['device_key' => 'ph_up', 'state' => false, 'action' => 'pH up pump off'],
-            '/ph_down_on' => ['device_key' => 'ph_down', 'state' => true, 'action' => 'pH down pump on'],
-            '/ph_down_off' => ['device_key' => 'ph_down', 'state' => false, 'action' => 'pH down pump off'],
+            '/ph_pump_on', '/ph_up_on', '/ph_up_dose' => ['device_key' => 'ph_up', 'state' => true, 'action' => 'pH up dose'],
+            '/ph_pump_off', '/ph_up_off' => ['device_key' => 'ph_up', 'state' => false, 'action' => 'pH up dose off'],
+            '/ph_down_on', '/ph_down_dose' => ['device_key' => 'ph_down', 'state' => true, 'action' => 'pH down dose'],
+            '/ph_down_off' => ['device_key' => 'ph_down', 'state' => false, 'action' => 'pH down dose off'],
             '/water_pump_on' => ['device_key' => 'topup', 'state' => true, 'action' => 'water pump on'],
             '/water_pump_off' => ['device_key' => 'topup', 'state' => false, 'action' => 'water pump off'],
             '/feed_now' => ['device_key' => 'feeder', 'state' => true, 'action' => 'feed now'],
@@ -347,7 +396,7 @@ class TelegramController extends Controller
         bool $state,
         ?Tank $tank = null
     ): void {
-        $tank ??= $this->defaultTank($user);
+        $tank ??= $this->selectedTank($user);
         if (!$tank) {
             $this->sendMessage($chatId, 'No tanks found for your account.');
             return;
@@ -355,6 +404,16 @@ class TelegramController extends Controller
 
         if (($tank->control_mode ?? 'auto') === 'auto') {
             $this->sendMessage($chatId, 'Auto mode is enabled for this tank. Switch to manual to control devices.');
+            return;
+        }
+
+        if (in_array($deviceKey, self::PH_DOSE_KEYS, true)) {
+            if (!$state) {
+                $this->sendMessage($chatId, $tank->name . ': pH dosing is one-time only. There is no continuous pH pump state to turn off.');
+                return;
+            }
+
+            $this->requestPhDose($chatId, $user, $tank, $deviceKey, 'One-time manual dose requested from Telegram.');
             return;
         }
 
@@ -388,9 +447,96 @@ class TelegramController extends Controller
         $this->sendMessage($chatId, $tank->name . ': action recorded - ' . $actionText);
     }
 
-    private function defaultTank(User $user): ?Tank
+    private function requestPhDose(string $chatId, User $user, Tank $tank, string $deviceKey, string $note): void
     {
-        return Tank::where('user_id', $user->id)->orderBy('name')->first();
+        $blockReason = $this->getBlockReason($tank, $deviceKey);
+        if ($blockReason) {
+            $this->sendMessage($chatId, $tank->name . ': ' . $blockReason);
+            return;
+        }
+
+        $pending = TankAction::where('tank_id', $tank->id)
+            ->whereIn('action_type', self::PH_DOSE_KEYS)
+            ->whereIn('status', ['pending', 'dispatched'])
+            ->first();
+
+        if ($pending) {
+            $this->sendMessage($chatId, $tank->name . ': a pH dose command is already pending.');
+            return;
+        }
+
+        $recentSameDose = TankAction::where('tank_id', $tank->id)
+            ->where('action_type', $deviceKey)
+            ->where('requested_at', '>=', now()->subSeconds(self::PH_DOSE_COOLDOWN_SECONDS))
+            ->exists();
+
+        if ($recentSameDose) {
+            $this->sendMessage($chatId, $tank->name . ': please wait a few seconds before requesting another pH dose.');
+            return;
+        }
+
+        $label = $deviceKey === 'ph_up' ? 'pH Up' : 'pH Down';
+
+        TankAction::create([
+            'tank_id' => $tank->id,
+            'user_id' => $user->id,
+            'requested_by' => $user->id,
+            'action' => $deviceKey . ' dose',
+            'action_type' => $deviceKey,
+            'note' => $note,
+            'status' => 'pending',
+            'requested_at' => now(),
+        ]);
+
+        $this->sendMessage($chatId, $tank->name . ": one {$label} dose has been requested.");
+    }
+
+    private function selectedTank(User $user): ?Tank
+    {
+        $tankId = Cache::get($this->selectedTankCacheKey($user));
+        if ($tankId) {
+            $tank = Tank::where('user_id', $user->id)->where('id', $tankId)->first();
+            if ($tank) {
+                return $tank;
+            }
+        }
+
+        $firstTank = Tank::where('user_id', $user->id)->orderBy('id')->first();
+        if ($firstTank) {
+            $this->selectTank($user, $firstTank);
+        }
+
+        return $firstTank;
+    }
+
+    private function selectTank(User $user, Tank $tank): void
+    {
+        Cache::forever($this->selectedTankCacheKey($user), $tank->id);
+    }
+
+    private function selectedTankCacheKey(User $user): string
+    {
+        return 'telegram_selected_tank_user_' . $user->id;
+    }
+
+    private function sendTankSelection(string $chatId, User $user, string $message = 'Choose a tank for Telegram controls, status, and alerts:'): void
+    {
+        $tanks = Tank::where('user_id', $user->id)->orderBy('name')->get(['id', 'name']);
+        if ($tanks->isEmpty()) {
+            $this->sendMessage($chatId, 'No tanks found for your account.');
+            return;
+        }
+
+        $buttons = $tanks->map(function (Tank $tank) {
+            return [[
+                'text' => $tank->name,
+                'callback_data' => 'tank_select_' . $tank->id,
+            ]];
+        })->values()->all();
+
+        $this->sendMessage($chatId, $message, [
+            'inline_keyboard' => $buttons,
+        ]);
     }
 
     private function resolveTankForCommand(User $user, string $text): ?Tank
@@ -405,7 +551,7 @@ class TelegramController extends Controller
             return $tankQuery->where('name', $target)->first();
         }
 
-        return $this->defaultTank($user);
+        return $this->selectedTank($user);
     }
 
     private function tankStatusText(Tank $tank): string
@@ -435,15 +581,28 @@ class TelegramController extends Controller
         $fallback = Threshold::all()->keyBy('parameter');
         $threshold = $thresholds->get($parameter) ?? $fallback->get($parameter);
         $unit = $latest->unit ? ' ' . $latest->unit : '';
+        $displayValue = number_format((float) $latest->value, 2);
         $status = 'Status unavailable';
-        if ($threshold && is_numeric($threshold->min_value) && is_numeric($threshold->max_value)) {
+        if ($parameter === 'Water Level') {
+            $value = $tank->actualWaterLevelFromDistance((float) $latest->value);
+            $range = $this->waterLevelRangeForTank($tank);
+            $displayValue = number_format($value, 2);
+            $status = $value >= $range['min'] && $value <= $range['max']
+                ? 'Good'
+                : 'Warning';
+        } elseif ($parameter === 'pH' && ($range = $this->speciesPhRangeForTank($tank))) {
+            $value = (float) $latest->value;
+            $status = $value >= $range['min'] && $value <= $range['max']
+                ? 'Good'
+                : 'Warning';
+        } elseif ($threshold && is_numeric($threshold->min_value) && is_numeric($threshold->max_value)) {
             $value = (float) $latest->value;
             $status = $value >= (float) $threshold->min_value && $value <= (float) $threshold->max_value
                 ? 'Good'
                 : 'Warning';
         }
 
-        return "{$label}: {$latest->value}{$unit} ({$status})";
+        return "{$label}: {$displayValue}{$unit} ({$status})";
     }
 
     private function parseDeviceState(string $actionText): ?array
@@ -506,19 +665,62 @@ class TelegramController extends Controller
         $thresholds = TankThreshold::where('tank_id', $tank->id)->get()->keyBy('parameter');
         $fallback = Threshold::all()->keyBy('parameter');
         $threshold = $thresholds->get($sensor) ?? $fallback->get($sensor);
-        if (!$threshold || !is_numeric($threshold->min_value) || !is_numeric($threshold->max_value)) {
+        $speciesPhRange = $sensor === 'pH' ? $this->speciesPhRangeForTank($tank) : null;
+        if ($sensor !== 'Water Level' && !$speciesPhRange && (!$threshold || !is_numeric($threshold->min_value) || !is_numeric($threshold->max_value))) {
             return 'Thresholds are not set for this parameter yet.';
         }
 
         $value = (float) $latest->value;
-        $min = (float) $threshold->min_value;
-        $max = (float) $threshold->max_value;
+        if ($sensor === 'Water Level') {
+            $value = $tank->actualWaterLevelFromDistance($value);
+            $range = $this->waterLevelRangeForTank($tank);
+            $min = $range['min'];
+            $max = $range['max'];
+        } elseif ($sensor === 'pH' && $speciesPhRange) {
+            $min = $speciesPhRange['min'];
+            $max = $speciesPhRange['max'];
+        } else {
+            $min = (float) $threshold->min_value;
+            $max = (float) $threshold->max_value;
+        }
 
         if ($value >= $min && $value <= $max) {
             return 'Device not needed. ' . $sensor . ' is in good condition.';
         }
 
         return null;
+    }
+
+    private function speciesPhRangeForTank(Tank $tank): ?array
+    {
+        $species = $tank->species()->get();
+        if ($species->isEmpty()) {
+            return null;
+        }
+
+        $min = (float) $species->max('min_ph');
+        $max = (float) $species->min('max_ph');
+
+        if ($min > $max) {
+            return null;
+        }
+
+        return [
+            'min' => $min,
+            'max' => $max,
+        ];
+    }
+
+    private function waterLevelRangeForTank(Tank $tank): array
+    {
+        $threshold = TankThreshold::where('tank_id', $tank->id)
+            ->where('parameter', 'Water Level')
+            ->first();
+
+        return $tank->waterLevelRange(
+            is_numeric($threshold?->min_value) ? (float) $threshold->min_value : null,
+            is_numeric($threshold?->max_value) ? (float) $threshold->max_value : null
+        );
     }
 
     private function deviceToSensor(string $deviceKey): ?string

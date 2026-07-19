@@ -9,8 +9,11 @@ use App\Http\Controllers\Admin\AutomationRuleController;
 use App\Http\Controllers\Admin\ThresholdController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\TankController;
+use App\Http\Controllers\Admin\TankRequestController as AdminTankRequestController;
 use App\Http\Controllers\Admin\FishAnalysisController as AdminFishAnalysisController;
+use App\Http\Controllers\Admin\SpeciesController as AdminSpeciesController;
 use App\Http\Controllers\TankController as UserTankController;
+use App\Http\Controllers\TankRequestController;
 use App\Http\Controllers\UserDashboardController;
 use App\Http\Controllers\TankThresholdController;
 use App\Http\Controllers\TankActionController;
@@ -19,11 +22,6 @@ use App\Http\Controllers\TelegramLinkController;
 use App\Http\Controllers\TankReadingController;
 use App\Http\Controllers\TankNotificationController;
 use App\Http\Controllers\TankDeviceStateController;
-use App\Http\Controllers\ShopController;
-use App\Http\Controllers\CartController;
-use App\Http\Controllers\CheckoutController;
-use App\Http\Controllers\AddressController;
-use App\Http\Controllers\UserOrderController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\SpeciesSelectionController;
 use App\Http\Controllers\CommunityCalculatorController;
@@ -41,18 +39,6 @@ Route::post('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])
     ->name('logout');
 
 Route::middleware('auth')->group(function () {
-    Route::get('addresses', [AddressController::class, 'index'])->name('addresses.index');
-    Route::post('addresses', [AddressController::class, 'store'])->name('addresses.store');
-    Route::put('addresses/{address}', [AddressController::class, 'update'])->name('addresses.update');
-    Route::get('shop', [ShopController::class, 'index'])->name('shop.index');
-    Route::get('cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('cart', [CartController::class, 'store'])->name('cart.store');
-    Route::put('cart/{item}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('cart/{item}', [CartController::class, 'destroy'])->name('cart.destroy');
-    Route::post('checkout', [CheckoutController::class, 'create'])->name('checkout.create');
-    Route::get('checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
-    Route::get('checkout/cancel/{order}', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
-    Route::get('orders', [UserOrderController::class, 'index'])->name('orders.index');
     Route::get('profile', [UserProfileController::class, 'edit'])->name('profile.edit');
     Route::put('profile', [UserProfileController::class, 'update'])->name('profile.update');
     Route::get('dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
@@ -70,8 +56,11 @@ Route::middleware('auth')->group(function () {
         ->name('image-analysis.nearby-shops');
     Route::post('api/v1/vision/check-fish', [FishDiseaseController::class, 'checkDisease'])
         ->name('image-analysis.check');
+    Route::get('tank-requests/create', [TankRequestController::class, 'create'])->name('tank-requests.create');
+    Route::post('tank-requests', [TankRequestController::class, 'store'])->name('tank-requests.store');
+    Route::get('tank-requests/{tankRequest}', [TankRequestController::class, 'show'])->name('tank-requests.show');
     Route::resource('tanks', UserTankController::class)->only([
-        'index', 'create', 'store', 'show', 'edit', 'update', 'destroy',
+        'index', 'show', 'edit', 'update', 'destroy',
     ]);
     Route::get('tanks/{tank}/dashboard', [UserDashboardController::class, 'show'])
         ->name('tanks.dashboard');
@@ -85,6 +74,8 @@ Route::middleware('auth')->group(function () {
         ->name('tanks.devices.index');
     Route::post('tanks/{tank}/devices', [TankDeviceStateController::class, 'update'])
         ->name('tanks.devices.update');
+    Route::post('tanks/{tank}/dose', [TankDeviceStateController::class, 'dose'])
+        ->name('tanks.devices.dose');
     Route::post('tanks/{tank}/notify', [TankNotificationController::class, 'send'])
         ->name('tanks.notify');
     Route::get('telegram-integration', [TelegramLinkController::class, 'index'])
@@ -106,7 +97,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::resource('parameters', ParameterController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::resource('automation-rules', AutomationRuleController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::resource('thresholds', ThresholdController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+    Route::resource('species', AdminSpeciesController::class)->names('admin.species');
     Route::resource('users', UserController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update', 'destroy']);
+    Route::get('tank-requests', [AdminTankRequestController::class, 'index'])->name('admin.tank-requests.index');
+    Route::get('tank-requests/{tankRequest}', [AdminTankRequestController::class, 'show'])->name('admin.tank-requests.show');
+    Route::put('tank-requests/{tankRequest}', [AdminTankRequestController::class, 'update'])->name('admin.tank-requests.update');
     Route::get('tanks', [TankController::class, 'index'])->name('admin.tanks.index');
     Route::get('tanks/{tank}', [TankController::class, 'show'])->name('admin.tanks.show');
     Route::get('fish-analyses', [AdminFishAnalysisController::class, 'index'])->name('admin.fish-analyses.index');

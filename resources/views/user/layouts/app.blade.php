@@ -13,9 +13,10 @@
             font-family: 'Inter', sans-serif;
             background: #D1E4E8;
             color: #0f1f26;
+            overflow-x: hidden;
         }
         .page-bg {
-            background: #D1E4E8;
+            background: #a8c0db;
             min-height: 100vh;
         }
         .card {
@@ -28,136 +29,254 @@
         }
         .muted { color: #6c757d; }
         .app-shell {
-            display: flex;
             min-height: 100vh;
         }
-        .side-navbar {
-            width: 270px;
-            flex: 0 0 270px;
-            background: rgba(255, 255, 255, 0.96);
-            border-right: 1px solid rgba(11, 95, 118, 0.12);
-            box-shadow: 8px 0 24px rgba(31, 58, 95, 0.06);
-            padding: 22px 16px;
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            overflow-y: auto;
-        }
         .app-main {
-            flex: 1;
+            width: 100%;
             min-width: 0;
         }
         .top-navbar {
-            min-height: 68px;
-            background: rgba(255, 255, 255, 0.96);
+            min-height: 64px;
+            background: rgba(255, 255, 255, 0.97);
             border-bottom: 1px solid rgba(11, 95, 118, 0.12);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            padding: 14px 24px;
+            box-shadow: 0 8px 22px rgba(31, 58, 95, 0.08);
+            padding: 0.65rem 1.25rem;
             position: sticky;
             top: 0;
-            z-index: 20;
+            z-index: 1040;
         }
-        .top-user {
+        .navbar-inner {
+            display: grid;
+            grid-template-columns: minmax(240px, 1fr) auto minmax(180px, 1fr);
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+        }
+        .brand-area {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 1rem;
             min-width: 0;
-        }
-        .tank-switcher {
-            min-width: 180px;
-            max-width: 260px;
-        }
-        .top-icon-btn {
-            width: 38px;
-            height: 38px;
-            border: 1px solid rgba(11, 95, 118, 0.25);
-            border-radius: 8px;
-            background: #fff;
-            color: #0b5f76;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        .top-icon-btn:hover {
-            background: rgba(11, 95, 118, 0.08);
-            color: #0b5f76;
-        }
-        .top-icon {
-            width: 19px;
-            height: 19px;
-        }
-        .notification-dot {
-            position: absolute;
-            top: 7px;
-            right: 7px;
-            width: 8px;
-            height: 8px;
-            border-radius: 999px;
-            background: #dc3545;
-            border: 2px solid #fff;
         }
         .brand-link {
             color: #0f1f26;
             text-decoration: none;
+            font-weight: 700;
+            font-size: 1.6rem;
+            letter-spacing: normal;
+            white-space: nowrap;
+        }
+        .brand-link:hover {
+            color: #78a2d2;
+        }
+        .tank-area {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            min-width: 0;
+            color: #0f1f26;
+        }
+        .tank-current {
+            max-width: 170px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            letter-spacing: normal;
+        }
+        .tank-switcher-button {
+            max-width: 260px;
+            border: 1px solid rgba(120, 162, 210, 0.45);
+            border-radius: 999px;
+            background: rgba(120, 162, 210, 0.1);
+            color: #0f1f26;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 24px;
+            gap: 0.45rem;
+            padding: 0.45rem 0.8rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            letter-spacing: normal;
+            cursor: pointer;
         }
-        .brand-mark {
-            width: 38px;
-            height: 38px;
+        .tank-switcher-button:hover,
+        .tank-switcher-button:focus,
+        .tank-switcher-button.show {
+            color: #78a2d2;
+            border-color: rgba(120, 162, 210, 0.72);
+            box-shadow: 0 0 0 4px rgba(120, 162, 210, 0.12);
+        }
+        .tank-dropdown-menu {
+            min-width: 220px;
+        }
+        .tank-option-form {
+            margin: 0;
+        }
+        .tank-option-button {
+            border: 1px solid transparent;
+            width: 100%;
+            background: transparent;
+            color: #0f1f26;
             border-radius: 10px;
-            background: #0f6c85;
-            color: #fff;
-            display: inline-flex;
+            font-size: 0.95rem;
+            font-weight: 500;
+            letter-spacing: normal;
+            text-align: left;
+            padding: 0.65rem 0.8rem;
+        }
+        .tank-option-button:hover,
+        .tank-option-button:focus {
+            color: #78a2d2;
+            background: rgba(120, 162, 210, 0.1);
+        }
+        .tank-option-button.active {
+            color: #0f1f26;
+            background: rgba(120, 162, 210, 0.16);
+            border: 1px solid rgba(120, 162, 210, 0.5);
+            box-shadow: 0 0 0 4px rgba(120, 162, 210, 0.12);
+        }
+        .nav-groups {
+            display: flex;
             align-items: center;
             justify-content: center;
+            gap: 1.1rem;
+        }
+        .mobile-collapse,
+        .mobile-collapse.collapse:not(.show) {
+            display: contents;
+        }
+        .nav-group {
+            position: relative;
+        }
+        .nav-group-button,
+        .user-menu-button {
+            border: 1px solid transparent;
+            background: transparent;
+            color: #0f1f26;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: normal;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.5rem 0.65rem;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+        .nav-group-button:hover,
+        .nav-group-button:focus,
+        .nav-group-button.show,
+        .user-menu-button:hover,
+        .user-menu-button:focus,
+        .user-menu-button.show {
+            color: #78a2d2;
+        }
+        .nav-group-button.active,
+        .user-menu-button.active {
+            color: #0f1f26;
+            background: rgba(120, 162, 210, 0.16);
+            border: 1px solid rgba(120, 162, 210, 0.5);
+            box-shadow: 0 0 0 4px rgba(120, 162, 210, 0.12);
             font-weight: 700;
         }
-        .side-nav-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
+        .user-menu-button span {
+            min-width: 0;
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .nav-link-soft {
-            color: #52656d;
-            text-decoration: none;
-            transition: background .2s ease, color .2s ease;
+        .user-menu-button {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        .chevron {
+            width: 12px;
+            height: 12px;
+            flex: 0 0 12px;
+        }
+        .nav-dropdown-menu {
+            min-width: 250px;
+            max-width: min(320px, calc(100vw - 24px));
+            padding: 0.65rem;
+            border: 1px solid rgba(11, 95, 118, 0.12);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 12px 26px rgba(31, 58, 95, 0.18);
+            z-index: 1100;
+        }
+        .nav-dropdown-menu .dropdown-item {
+            color: #0f1f26;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: normal;
+            padding: 0.65rem 0.8rem;
+        }
+        .nav-dropdown-menu .dropdown-item:hover,
+        .nav-dropdown-menu .dropdown-item:focus {
+            background: rgba(120, 162, 210, 0.1);
+            color: #78a2d2;
+        }
+        .nav-dropdown-menu .dropdown-item.active {
+            background: rgba(120, 162, 210, 0.16);
+            color: #0f1f26;
+            border: 1px solid rgba(120, 162, 210, 0.5);
+            box-shadow: 0 0 0 4px rgba(120, 162, 210, 0.12);
+            font-weight: 700;
+        }
+        .right-area {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 0.94rem;
-            padding: 11px 12px;
+            justify-content: flex-end;
+            min-width: 0;
+        }
+        .user-dropdown-menu {
+            min-width: 150px;
+            padding: 0.45rem;
+            border-radius: 10px;
+            border: 1px solid rgba(11, 95, 118, 0.14);
+            box-shadow: 0 12px 26px rgba(31, 58, 95, 0.16);
+            z-index: 1100;
+        }
+        .logout-item {
+            border: 1px solid transparent;
+            width: 100%;
+            background: transparent;
+            color: #dc3545;
             border-radius: 8px;
-            line-height: 1.2;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: normal;
+            text-align: left;
+            padding: 0.55rem 0.7rem;
         }
-        .nav-link-soft:hover {
-            background: rgba(11, 95, 118, 0.08);
-            color: #0b5f76;
+        .logout-item:hover,
+        .logout-item:focus,
+        .logout-item:active {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border-color: rgba(220, 53, 69, 0.35);
+            box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.1);
         }
-        .nav-link-active {
-            background: rgba(11, 95, 118, 0.12);
-            color: #0b5f76;
-            font-weight: 700;
+        .hamburger-btn {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(11, 95, 118, 0.18);
+            border-radius: 8px;
+            background: transparent;
+            color: #0f1f26;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
         }
-        .nav-icon {
-            width: 20px;
-            height: 20px;
-            color: currentColor;
-            flex: 0 0 20px;
+        .hamburger-btn svg {
+            width: 22px;
+            height: 22px;
         }
-        .btn-logout {
-            border-color: rgba(11, 95, 118, 0.35);
-            color: #0b5f76;
-        }
-        .btn-logout:hover {
-            background: rgba(11, 95, 118, 0.08);
-            color: #0b5f76;
+        .content-wrap {
+            width: 100%;
+            max-width: none;
+            padding: 1.5rem;
         }
         .aquawatch-toast-container {
             position: fixed;
@@ -217,36 +336,70 @@
             background: #FCEAA6;
             color: #8A6500;
         }
-        @media (max-width: 992px) {
-            .app-shell {
+        @media (max-width: 991.98px) {
+            .top-navbar {
+                padding: 0.65rem 0.85rem;
+                position: sticky;
+            }
+            .navbar-inner {
+                grid-template-columns: auto 1fr auto;
+                grid-template-areas:
+                    "brand brand toggle"
+                    "menu menu menu";
+                gap: 0.65rem;
+            }
+            .brand-area {
+                grid-area: brand;
+                flex-wrap: wrap;
+                gap: 0.65rem 1rem;
+            }
+            .hamburger-btn {
+                grid-area: toggle;
+                display: inline-flex;
+                justify-self: end;
+            }
+            .mobile-collapse {
+                grid-area: menu;
+                display: none;
+                width: 100%;
+                border-top: 1px solid rgba(11, 95, 118, 0.12);
+                padding-top: 0.55rem;
+            }
+            .mobile-collapse.show {
                 display: block;
             }
-            .side-navbar {
-                position: static;
+            .nav-groups,
+            .right-area {
+                display: block;
                 width: 100%;
-                height: auto;
-                padding: 14px;
-                border-right: 0;
-                border-bottom: 1px solid rgba(11, 95, 118, 0.12);
             }
-            .brand-link {
-                margin-bottom: 12px;
+            .nav-group {
+                width: 100%;
             }
-            .top-navbar {
-                position: static;
-                padding: 14px;
+            .nav-group-button,
+            .user-menu-button {
+                width: 100%;
+                justify-content: space-between;
+                padding: 0.75rem 0.2rem;
             }
-            .side-nav-group {
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
+            .nav-dropdown-menu,
+            .user-dropdown-menu {
+                position: static !important;
+                transform: none !important;
+                width: 100%;
+                max-width: none;
+                margin: 0 0 0.35rem;
+                background: rgba(255, 255, 255, 0.98);
+                border-color: rgba(11, 95, 118, 0.12);
+                box-shadow: 0 8px 18px rgba(31, 58, 95, 0.08);
             }
-            .nav-link-soft {
-                padding: 10px;
+            .content-wrap {
+                padding: 1rem;
             }
         }
-        @media (max-width: 576px) {
-            .side-nav-group {
-                grid-template-columns: 1fr;
+        @media (max-width: 575.98px) {
+            .tank-current {
+                max-width: calc(100vw - 130px);
             }
             .aquawatch-toast-container {
                 top: 16px;
@@ -270,136 +423,163 @@
         $currentTank = $userTanks->first();
     }
     $userName = auth()->user()->name ?? 'User';
-    $latestNotice = null;
-    if ($currentTank instanceof \App\Models\Tank) {
-        $latestAction = \App\Models\TankAction::where('tank_id', $currentTank->id)->latest('id')->first();
-        $latestReading = \App\Models\TankReading::where('tank_id', $currentTank->id)->latest('recorded_at')->latest('id')->first();
-        $latestNotice = $latestAction
-            ? $latestAction->action . ' - ' . $latestAction->created_at->format('Y-m-d H:i')
-            : ($latestReading ? $latestReading->parameter . ' updated - ' . $latestReading->recorded_at?->format('Y-m-d H:i') : 'No alerts or status yet');
-    }
+    $currentTankName = $currentTank instanceof \App\Models\Tank ? $currentTank->name : 'No Tank';
+    $monitoringActive = request()->routeIs('dashboard', 'tanks.dashboard', 'sensor-history.index', 'tanks.*', 'tank-requests.*');
+    $analysisActive = request()->routeIs('species.*', 'community.*', 'image-analysis.*');
+    $setupActive = request()->routeIs('telegram.*', 'profile.*');
 @endphp
 
 <div class="app-shell">
-<aside class="side-navbar">
-    <a class="brand-link" href="{{ route('tanks.index') }}">
-        <span class="brand-mark">{{ strtoupper(substr($userName, 0, 1)) }}</span>
-        <span class="fw-bold fs-5">{{ $userName }}</span>
-    </a>
+    <header class="top-navbar">
+        <div class="navbar-inner">
+            <div class="brand-area">
+                <a class="brand-link" href="{{ route('dashboard') }}">AquaWatch</a>
+                <div class="tank-area">
+                    @if($userTanks->isNotEmpty())
+                        <div class="dropdown">
+                            <button class="tank-switcher-button" type="button" data-bs-toggle="dropdown"
+                                    data-bs-auto-close="outside" data-bs-boundary="viewport" aria-expanded="false">
+                                <span class="tank-current text-truncate">{{ $currentTankName }}</span>
+                                <svg class="chevron" viewBox="0 0 24 24" fill="none">
+                                    <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <div class="dropdown-menu nav-dropdown-menu tank-dropdown-menu">
+                                @foreach($userTanks as $tankOption)
+                                    <form method="POST" action="{{ route('dashboard.tank.select') }}" class="tank-option-form">
+                                        @csrf
+                                        <input type="hidden" name="tank_id" value="{{ $tankOption->id }}">
+                                        <button class="tank-option-button {{ $currentTank && $currentTank->id === $tankOption->id ? 'active' : '' }}" type="submit">
+                                            {{ $tankOption->name }}
+                                        </button>
+                                    </form>
+                                @endforeach
+                            </div>
+                        </div>
+                    @else
+                        <span class="tank-current text-truncate">{{ $currentTankName }}</span>
+                    @endif
+                </div>
+            </div>
 
-    <nav class="side-nav-group" aria-label="Main navigation">
-        <a class="nav-link-soft {{ request()->routeIs('dashboard', 'tanks.dashboard') ? 'nav-link-active' : '' }}" href="{{ route('dashboard') }}">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
-                <path d="M4 13h7V4H4v9Zm9 7h7V4h-7v16ZM4 20h7v-5H4v5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
-            </svg>
-            <span>Dashboard</span>
-        </a>
-        <a class="nav-link-soft {{ request()->routeIs('sensor-history.index') ? 'nav-link-active' : '' }}" href="{{ route('sensor-history.index') }}">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
-                <path d="M4 19V5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-                <path d="M4 19h17" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-                <path d="m7 15 3-4 3 2 5-7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>Sensor History</span>
-        </a>
-        <a class="nav-link-soft {{ request()->routeIs('species.index', 'species.update') ? 'nav-link-active' : '' }}" href="{{ route('species.index') }}">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
-                <path d="M12 21c4-2.5 7-6 7-11V5l-7-3-7 3v5c0 5 3 8.5 7 11Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
-                <path d="M9 12h6M12 9v6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-            </svg>
-            <span>Species Selection</span>
-        </a>
-        <a class="nav-link-soft {{ request()->routeIs('community.index', 'community.calculate', 'community.apply') ? 'nav-link-active' : '' }}" href="{{ route('community.index') }}">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
-                <path d="M5 20V8m7 12V4m7 16v-9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-                <path d="M3 20h19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-            </svg>
-            <span>Community Calculation</span>
-        </a>
-        <a class="nav-link-soft {{ request()->routeIs('image-analysis.index') ? 'nav-link-active' : '' }}" href="{{ route('image-analysis.index') }}">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
-                <path d="M4 7a2 2 0 0 1 2-2h3l1.5 2H18a2 2 0 0 1 2 2v10H4V7Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
-                <path d="m8 16 3-4 2 2 2-3 3 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>Image Analysis</span>
-        </a>
-        <a class="nav-link-soft {{ request()->routeIs('tanks.*') && !request()->routeIs('tanks.dashboard', 'tanks.thresholds.*') ? 'nav-link-active' : '' }}" href="{{ route('tanks.index') }}">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
-                <path d="M3 12c2.2-2.5 5.1-4 9-4 3.9 0 6.8 1.5 9 4-2.2 2.5-5.1 4-9 4-3.9 0-6.8-1.5-9-4Z" stroke="currentColor" stroke-width="1.7"/>
-                <path d="M6 12c0 2.5-1.5 4-3 4 .5-1.5.5-2.5 0-4 .5-1.5.5-2.5 0-4 1.5 0 3 1.5 3 4Z" stroke="currentColor" stroke-width="1.7"/>
-                <path d="M15.5 10.5h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            <span>Tanks</span>
-        </a>
-        <a class="nav-link-soft {{ request()->routeIs('telegram.index', 'telegram.link') ? 'nav-link-active' : '' }}" href="{{ route('telegram.index') }}">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
-                <path d="m21 4-4.8 16-4.4-6.8L5 10.8 21 4Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
-                <path d="m11.8 13.2 4.6-4.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-            </svg>
-            <span>Telegram Integration</span>
-        </a>
-        <a class="nav-link-soft {{ request()->routeIs('profile.edit') ? 'nav-link-active' : '' }}" href="{{ route('profile.edit') }}">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none">
-                <path d="M20 20a8 8 0 1 0-16 0" stroke="currentColor" stroke-width="1.7"/>
-                <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" stroke-width="1.7"/>
-            </svg>
-            <span>Setting/Profile</span>
-        </a>
-    </nav>
-</aside>
-
-<main class="app-main">
-<header class="top-navbar">
-    <div class="fw-bold fs-5">AquaWatch</div>
-    <div class="top-user">
-        @if($userTanks->isNotEmpty())
-            <form method="POST" action="{{ route('dashboard.tank.select') }}" class="mb-0">
-                @csrf
-                <select class="form-select form-select-sm tank-switcher" name="tank_id" aria-label="Select tank"
-                        onchange="this.form.submit()">
-                    @foreach($userTanks as $tankOption)
-                        <option value="{{ $tankOption->id }}" {{ $currentTank && $currentTank->id === $tankOption->id ? 'selected' : '' }}>
-                            {{ $tankOption->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </form>
-        @endif
-        <div class="dropdown">
-            <button class="top-icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Latest alert or status">
-                <svg class="top-icon" viewBox="0 0 24 24" fill="none">
-                    <path d="M18 9a6 6 0 1 0-12 0c0 7-3 7-3 7h18s-3 0-3-7Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                    <path d="M10 20a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <button class="hamburger-btn" type="button" data-bs-toggle="collapse" data-bs-target="#userNavbarMenu"
+                    aria-controls="userNavbarMenu" aria-expanded="false" aria-label="Toggle navigation">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                @if($latestNotice && $latestNotice !== 'No alerts or status yet')
-                    <span class="notification-dot"></span>
-                @endif
             </button>
-            <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 280px;">
-                <div class="fw-semibold small mb-1">Latest Alert / Status</div>
-                <div class="small muted">{{ $latestNotice ?? 'No alerts or status yet' }}</div>
+
+            <div class="mobile-collapse collapse" id="userNavbarMenu">
+                <nav class="nav-groups" aria-label="Main navigation">
+                    <div class="dropdown nav-group">
+                        <button class="nav-group-button {{ $monitoringActive ? 'active' : '' }}" type="button"
+                                data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-boundary="viewport"
+                                aria-expanded="false">
+                            <span>Monitoring</span>
+                            <svg class="chevron" viewBox="0 0 24 24" fill="none">
+                                <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu nav-dropdown-menu">
+                            <a class="dropdown-item {{ request()->routeIs('dashboard', 'tanks.dashboard') ? 'active' : '' }}"
+                               href="{{ route('dashboard') }}">Dashboard</a>
+                            <a class="dropdown-item {{ request()->routeIs('sensor-history.index') ? 'active' : '' }}"
+                               href="{{ route('sensor-history.index') }}">Sensor History</a>
+                            <a class="dropdown-item {{ request()->routeIs('tanks.*', 'tank-requests.*') && !request()->routeIs('tanks.dashboard') ? 'active' : '' }}"
+                               href="{{ route('tanks.index') }}">Tanks</a>
+                        </div>
+                    </div>
+
+                    <div class="dropdown nav-group">
+                        <button class="nav-group-button {{ $analysisActive ? 'active' : '' }}" type="button"
+                                data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-boundary="viewport"
+                                aria-expanded="false">
+                            <span>Analysis</span>
+                            <svg class="chevron" viewBox="0 0 24 24" fill="none">
+                                <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu nav-dropdown-menu">
+                            <a class="dropdown-item {{ request()->routeIs('species.*') ? 'active' : '' }}"
+                               href="{{ route('species.index') }}">Species Selection</a>
+                            <a class="dropdown-item {{ request()->routeIs('community.*') ? 'active' : '' }}"
+                               href="{{ route('community.index') }}">Community Calculation</a>
+                            <a class="dropdown-item {{ request()->routeIs('image-analysis.*') ? 'active' : '' }}"
+                               href="{{ route('image-analysis.index') }}">Image Analysis</a>
+                        </div>
+                    </div>
+
+                    <div class="dropdown nav-group">
+                        <button class="nav-group-button {{ $setupActive ? 'active' : '' }}" type="button"
+                                data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-boundary="viewport"
+                                aria-expanded="false">
+                            <span>Setup</span>
+                            <svg class="chevron" viewBox="0 0 24 24" fill="none">
+                                <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu nav-dropdown-menu">
+                            <a class="dropdown-item {{ request()->routeIs('telegram.*') ? 'active' : '' }}"
+                               href="{{ route('telegram.index') }}">Telegram Integration</a>
+                            <a class="dropdown-item {{ request()->routeIs('profile.*') ? 'active' : '' }}"
+                               href="{{ route('profile.edit') }}">Setting/Profile</a>
+                        </div>
+                    </div>
+                </nav>
+
+                <div class="right-area">
+                    <div class="dropdown nav-group">
+                        <button class="user-menu-button" type="button" data-bs-toggle="dropdown"
+                                data-bs-auto-close="outside" data-bs-boundary="viewport" aria-expanded="false">
+                            <span>USER: {{ $userName }}</span>
+                            <svg class="chevron" viewBox="0 0 24 24" fill="none">
+                                <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end user-dropdown-menu">
+                            <form method="POST" action="{{ route('logout') }}" class="mb-0">
+                                @csrf
+                                <button class="logout-item" type="submit">Sign Out</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <span class="small fw-semibold text-truncate">{{ $userName }}</span>
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button class="top-icon-btn" type="submit" title="Logout" aria-label="Logout">
-                <svg class="top-icon" viewBox="0 0 24 24" fill="none">
-                    <path d="M10 17l5-5-5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M15 12H3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                    <path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                </svg>
-            </button>
-        </form>
-    </div>
-</header>
-<div class="container-fluid px-3 px-md-4 py-4">
-    @yield('content')
-</div>
-</main>
+    </header>
+
+    <main class="app-main">
+        <div class="content-wrap">
+            @yield('content')
+        </div>
+    </main>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const navbarMenu = document.getElementById('userNavbarMenu');
+
+        document.querySelectorAll('.top-navbar .dropdown').forEach((dropdown) => {
+            dropdown.addEventListener('show.bs.dropdown', () => {
+                document.querySelectorAll('.top-navbar .dropdown-toggle.show, .top-navbar [data-bs-toggle="dropdown"].show').forEach((toggle) => {
+                    const openDropdown = bootstrap.Dropdown.getInstance(toggle);
+                    if (openDropdown && !dropdown.contains(toggle)) {
+                        openDropdown.hide();
+                    }
+                });
+            });
+        });
+
+        document.querySelectorAll('.nav-dropdown-menu .dropdown-item, .tank-option-button, .user-dropdown-menu .logout-item').forEach((item) => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth < 992 && navbarMenu) {
+                    bootstrap.Collapse.getOrCreateInstance(navbarMenu, { toggle: false }).hide();
+                }
+            });
+        });
+    });
+</script>
 @php
     $toastMessages = [];
     if (session('success')) {

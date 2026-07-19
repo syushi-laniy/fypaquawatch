@@ -28,9 +28,9 @@ class User extends Authenticatable
         return $this->hasMany(Tank::class);
     }
 
-    public function addresses(): HasMany
+    public function tankRequests(): HasMany
     {
-        return $this->hasMany(Address::class);
+        return $this->hasMany(TankRequest::class);
     }
 
     public function aiAnalysisLogs(): HasMany

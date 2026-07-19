@@ -13,8 +13,18 @@ class TankAction extends Model
     protected $fillable = [
         'tank_id',
         'user_id',
+        'requested_by',
         'action',
+        'action_type',
         'note',
+        'status',
+        'requested_at',
+        'completed_at',
+    ];
+
+    protected $casts = [
+        'requested_at' => 'datetime',
+        'completed_at' => 'datetime',
     ];
 
     public function tank(): BelongsTo

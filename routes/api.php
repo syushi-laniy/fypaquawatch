@@ -3,14 +3,18 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Api\IoTController;
 use App\Http\Controllers\Api\SensorReadingController;
 use App\Http\Controllers\TelegramController;
-use App\Http\Controllers\StripeWebhookController;
 
+Route::post('/iot/readings', [IoTController::class, 'storeReadings']);
+Route::get('/iot/commands', [IoTController::class, 'commands']);
+Route::post('/iot/commands/{command}/acknowledge', [IoTController::class, 'acknowledgeCommand']);
+Route::post('/iot/alert', [IoTController::class, 'alert']);
 Route::post('/sensor-readings', [SensorReadingController::class, 'store']);
+Route::get('/tanks/{tank}/latest-readings', [SensorReadingController::class, 'latestReadings']);
 Route::get('/tanks/{tank}/latest', [SensorReadingController::class, 'latest']);
 Route::post('/telegram/webhook', [TelegramController::class, 'handle']);
-Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
 
 
 /*

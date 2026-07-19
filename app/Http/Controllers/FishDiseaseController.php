@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AiAnalysisLog;
 use App\Models\Tank;
 use App\Models\TankReading;
+use App\Models\TankThreshold;
 use App\Models\Threshold;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -212,14 +213,18 @@ Return ONLY this JSON format:
         $defaults = collect([
             'pH' => ['label' => 'pH', 'unit' => 'pH', 'min' => 6.5, 'max' => 7.5],
             'Turbidity' => ['label' => 'Turbidity', 'unit' => 'NTU', 'min' => 0, 'max' => 5],
-            'Water Level' => ['label' => 'Water Level', 'unit' => 'cm', 'min' => 20, 'max' => 30],
+            'Water Level' => ['label' => 'Water Level', 'unit' => 'cm', 'min' => 15, 'max' => $tank->tankHeightCm()],
         ]);
 
         $thresholds = Threshold::whereIn('parameter', $defaults->keys()->all())
             ->get()
             ->keyBy('parameter');
+        $tankThresholds = TankThreshold::where('tank_id', $tank->id)
+            ->whereIn('parameter', $defaults->keys()->all())
+            ->get()
+            ->keyBy('parameter');
 
-        return $defaults->map(function (array $definition, string $parameter) use ($tank, $thresholds) {
+        return $defaults->map(function (array $definition, string $parameter) use ($tank, $thresholds, $tankThresholds) {
             $reading = TankReading::where('tank_id', $tank->id)
                 ->where('parameter', $parameter)
                 ->orderByDesc('recorded_at')
@@ -230,6 +235,16 @@ Return ONLY this JSON format:
             $min = $threshold && is_numeric($threshold->min_value) ? (float) $threshold->min_value : $definition['min'];
             $max = $threshold && is_numeric($threshold->max_value) ? (float) $threshold->max_value : $definition['max'];
             $value = $reading && is_numeric($reading->value) ? (float) $reading->value : null;
+            if ($parameter === 'Water Level') {
+                $waterThreshold = $tankThresholds->get($parameter);
+                $range = $tank->waterLevelRange(
+                    is_numeric($waterThreshold?->min_value) ? (float) $waterThreshold->min_value : null,
+                    is_numeric($waterThreshold?->max_value) ? (float) $waterThreshold->max_value : null
+                );
+                $min = $range['min'];
+                $max = $range['max'];
+                $value = $value !== null ? $tank->actualWaterLevelFromDistance($value) : null;
+            }
 
             return [
                 'label' => $definition['label'],

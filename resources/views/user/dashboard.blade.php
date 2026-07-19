@@ -8,6 +8,106 @@
         font-weight: 700;
         margin-bottom: 10px;
     }
+    .dashboard-glass-card {
+        width: calc(100% - 48px);
+        max-width: 1500px;
+        margin: 24px auto;
+        padding: 24px;
+        border-radius: 28px;
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        background: rgba(255, 255, 255, 0.20);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        box-shadow:
+            0 12px 35px rgba(25, 73, 110, 0.16),
+            inset 0 1px 0 rgba(255, 255, 255, 0.35);
+        overflow: hidden;
+    }
+    .dashboard-glass-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    .dashboard-glass-title {
+        color: #0f1f26;
+        font-weight: 700;
+    }
+    .control-mode-panel {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.36);
+        padding: 0.4rem;
+        box-shadow:
+            0 8px 20px rgba(25, 73, 110, 0.10),
+            inset 0 1px 0 rgba(255, 255, 255, 0.45);
+    }
+    .control-mode-label {
+        color: #0f1f26;
+        font-weight: 700;
+        padding-left: 0.5rem;
+        white-space: nowrap;
+    }
+    .mode-options {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(84px, 1fr));
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.44);
+        overflow: hidden;
+    }
+    .mode-options::before {
+        content: "";
+        position: absolute;
+        inset: 4px auto 4px 4px;
+        width: calc(50% - 4px);
+        border-radius: 999px;
+        background: #78a2d2;
+        box-shadow: 0 6px 14px rgba(120, 162, 210, 0.34);
+        transition: transform 0.28s ease;
+        z-index: 0;
+    }
+    .mode-options:has(#mode-manual:checked)::before {
+        transform: translateX(100%);
+    }
+    .mode-option {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 0.35rem 0.85rem;
+        border-radius: 999px;
+        color: #0f1f26;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: color 0.22s ease;
+    }
+    .mode-options input:checked + .mode-option {
+        color: #fff;
+    }
+    .mode-save-button {
+        border: 0;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.78);
+        color: #78a2d2;
+        font-size: 0.78rem;
+        font-weight: 700;
+        padding: 0.48rem 0.95rem;
+        transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .mode-save-button:hover,
+    .mode-save-button:focus {
+        background: #fff;
+        color: #5d8fc6;
+        box-shadow: 0 0 0 4px rgba(120, 162, 210, 0.14);
+    }
     .status-card {
         border: 1px solid #D6E8ED;
         border-radius: 12px;
@@ -34,25 +134,85 @@
     }
     .value-section,
     .status-section {
-        background: #fff;
-        padding: 1rem;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+        padding: 0;
     }
     .gauge-card {
         padding: 1rem;
         min-height: 235px;
     }
+    .value-section .gauge-card {
+        min-height: 230px;
+        justify-content: flex-start;
+        gap: 0.9rem;
+    }
+    .gauge-card-title {
+        min-height: 1.4rem;
+    }
+    .gauge-meta {
+        margin-top: auto;
+    }
+    .gauge-status-line {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+    }
+    .gauge-status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: #6c757d;
+        flex: 0 0 6px;
+    }
+    .gauge-status-dot.is-good {
+        background: #198754;
+    }
+    .gauge-status-dot.is-warning {
+        background: #c99200;
+    }
+    .gauge-status-dot.is-offline {
+        background: #6c757d;
+    }
     .device-card {
         padding: 0.8rem;
         min-height: 126px;
+    }
+    .status-section .device-card {
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        border-radius: 14px;
+        box-shadow: 0 8px 18px rgba(25, 73, 110, 0.10);
+        padding: 1rem;
+        min-height: 155px;
     }
     .device-card-heading {
         display: flex;
         align-items: center;
         gap: 0.65rem;
     }
+    .status-section .status-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        background: rgba(120, 162, 210, 0.14);
+        color: #5fa0d5;
+    }
+    .status-section .status-icon svg {
+        width: 15px;
+        height: 15px;
+    }
     .device-card-title {
         font-weight: 700;
         line-height: 1.2;
+    }
+    .status-section .device-card-title {
+        color: #0f1f26;
+        font-size: 0.82rem;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
     }
     .device-card-description {
         color: #6c757d;
@@ -60,16 +220,77 @@
         line-height: 1.25;
         margin: 0.45rem 0 0;
     }
+    .status-section .device-card-description {
+        font-size: 0.72rem;
+        margin-top: 0.7rem;
+    }
     .device-card-footer {
         border-top: 1px solid #D6E8ED;
         margin-top: 0.65rem;
         padding-top: 0.6rem;
+    }
+    .status-section .device-card-footer {
+        border-top-color: rgba(120, 162, 210, 0.20);
+        margin-top: auto;
+        padding-top: 0.85rem;
     }
     .device-card-footer-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 0.75rem;
+    }
+    .status-section .dose-button,
+    .status-section .one-shot-button {
+        border: 0;
+        border-radius: 10px;
+        background: #5fa8dd;
+        color: #fff;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.62rem 0.75rem;
+        text-transform: uppercase;
+        box-shadow: 0 6px 12px rgba(95, 168, 221, 0.18);
+        transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .status-section .dose-button:hover,
+    .status-section .dose-button:focus,
+    .status-section .one-shot-button:hover,
+    .status-section .one-shot-button:focus {
+        background: #4f99cf;
+        color: #fff;
+        box-shadow: 0 8px 16px rgba(95, 168, 221, 0.25);
+        transform: translateY(-1px);
+    }
+    .status-section .dose-button:disabled,
+    .status-section .one-shot-button:disabled {
+        background: #9fc4df;
+        color: rgba(255, 255, 255, 0.85);
+        box-shadow: none;
+        transform: none;
+    }
+    .status-section .form-check-input {
+        width: 42px;
+        height: 22px;
+        border-color: rgba(95, 168, 221, 0.35);
+        background-color: #edf5fb;
+        cursor: pointer;
+    }
+    .status-section .form-check-input:checked {
+        border-color: #5fa8dd;
+        background-color: #5fa8dd;
+    }
+    .status-section .form-check-input:focus {
+        border-color: #5fa8dd;
+        box-shadow: 0 0 0 0.2rem rgba(95, 168, 221, 0.16);
+    }
+    .status-section .device-status-badge {
+        background: rgba(255, 255, 255, 0.75) !important;
+        color: #0f1f26 !important;
+        border: 1px solid rgba(120, 162, 210, 0.20);
+        border-radius: 6px;
+        font-size: 0.68rem;
+        padding: 0.28rem 0.45rem;
     }
     .radial-gauge {
         --gauge-percent: 0%;
@@ -94,6 +315,54 @@
         font-size: 0.72rem;
         color: #6c757d;
         margin-top: 3px;
+    }
+    .system-status-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: 1rem;
+        padding: 0.85rem 1rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        background: rgba(255, 255, 255, 0.30);
+        box-shadow:
+            0 8px 20px rgba(25, 73, 110, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.38);
+    }
+    .system-status-message {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.65rem;
+        min-width: 0;
+        color: #0f1f26;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+    }
+    .system-status-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 999px;
+        background: rgba(240, 211, 106, 0.65);
+        box-shadow: 0 0 0 4px rgba(240, 211, 106, 0.14);
+        flex: 0 0 14px;
+    }
+    .system-status-updated {
+        flex: 0 0 auto;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.88);
+        color: #78a2d2;
+        padding: 0.45rem 0.85rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(25, 73, 110, 0.08);
+        white-space: nowrap;
+    }
+    .system-status-bar.is-online .system-status-dot {
+        background: rgba(143, 211, 170, 0.8);
+        box-shadow: 0 0 0 4px rgba(143, 211, 170, 0.16);
     }
     .status-card .form-switch {
         padding-left: 0;
@@ -124,6 +393,31 @@
         border-color: #681818;
     }
     @media (max-width: 767.98px) {
+        .dashboard-glass-card {
+            width: 100%;
+            margin: 0 auto;
+            padding: 16px;
+            border-radius: 22px;
+        }
+        .dashboard-glass-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+        .control-mode-panel {
+            width: 100%;
+            flex-wrap: wrap;
+        }
+        .mode-options {
+            flex: 1 1 180px;
+        }
+        .system-status-bar {
+            align-items: flex-start;
+            border-radius: 20px;
+            flex-direction: column;
+        }
+        .system-status-updated {
+            align-self: flex-start;
+        }
         .gauge-card,
         .device-card {
             min-height: auto;
@@ -134,64 +428,45 @@
 @if(!$selectedTank)
     <div class="card card-shadow p-4">
         <div class="fw-semibold mb-1">Dashboard</div>
-        <div class="small muted mb-3">No tank is selected yet. Add a tank when you want to start monitoring aquarium data.</div>
-        <a class="btn btn-primary" href="{{ route('tanks.create') }}">Add Tank</a>
+        <div class="small muted mb-3">No tank is selected yet. Request a tank when you want to start monitoring aquarium data.</div>
+        <a class="btn btn-primary" href="{{ route('tank-requests.create') }}">Request New Tank</a>
     </div>
 @else
     @php
         $lastFeeding = $actions->first(function ($action) {
             return stripos($action->action, 'feed') !== false || stripos($action->action, 'feeder') !== false;
         });
-        $statusDevices = [
+        $doseDevices = [
             [
                 'key' => 'ph_up',
                 'title' => 'pH Up',
-                'description' => 'Raises acidic water',
-                'state' => !empty($deviceStates['ph_up']),
+                'description' => 'One short dose to raise acidic water',
+                'button' => 'Dose pH Up',
             ],
             [
                 'key' => 'ph_down',
                 'title' => 'pH Down',
-                'description' => 'Lowers alkaline water',
-                'state' => !empty($deviceStates['ph_down']),
+                'description' => 'One short dose to lower alkaline water',
+                'button' => 'Dose pH Down',
             ],
+        ];
+        $statusDevices = [
             [
                 'key' => 'topup',
                 'title' => 'Water Pump Status',
                 'description' => 'Refill or circulate water',
                 'state' => !empty($deviceStates['topup']),
             ],
+        ];
+        $oneShotDevices = [
             [
                 'key' => 'feeder',
                 'title' => 'Feed Status',
-                'description' => 'Manual feeding control',
-                'state' => !empty($deviceStates['feeder']),
+                'description' => 'Run one feeding cycle',
+                'button' => 'Feed Now',
             ],
         ];
     @endphp
-
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-        <div class="h4 mb-0 fw-bold">{{ $selectedTank->name }} Dashboard</div>
-    </div>
-
-    <div class="card card-shadow p-3 mb-3">
-        <form method="POST" action="{{ route('tanks.mode.update', $selectedTank) }}"
-              class="d-flex flex-wrap align-items-center gap-3" id="mode-form">
-            @csrf
-            <div class="fw-semibold">Control Mode</div>
-            <div class="form-check form-check-inline mb-0">
-                <input class="form-check-input" type="radio" name="control_mode" id="mode-auto"
-                       value="auto" {{ $selectedTank->control_mode === 'auto' ? 'checked' : '' }}>
-                <label class="form-check-label" for="mode-auto">Auto</label>
-            </div>
-            <div class="form-check form-check-inline mb-0">
-                <input class="form-check-input" type="radio" name="control_mode" id="mode-manual"
-                       value="manual" {{ $selectedTank->control_mode === 'manual' ? 'checked' : '' }}>
-                <label class="form-check-label" for="mode-manual">Manual</label>
-            </div>
-            <button class="btn btn-sm btn-outline-primary" type="submit">Save Mode</button>
-        </form>
-    </div>
 
     <div class="position-fixed top-0 end-0 p-3" style="z-index: 1055;">
         <div id="dashboard-toast" class="toast align-items-center text-bg-maroon border-0" role="alert"
@@ -220,15 +495,41 @@
         </div>
     </div>
 
-    <div class="card card-shadow value-section mb-3">
+    <div class="dashboard-glass-card">
+        <div class="dashboard-glass-header">
+            <div class="h4 mb-0 dashboard-glass-title">{{ $selectedTank->name }} Dashboard</div>
+
+            <form method="POST" action="{{ route('tanks.mode.update', $selectedTank) }}"
+                  class="control-mode-panel" id="mode-form">
+                @csrf
+                <div class="control-mode-label">Mode:</div>
+                <div class="mode-options">
+                    <input class="visually-hidden" type="radio" name="control_mode" id="mode-auto"
+                           value="auto" {{ $selectedTank->control_mode === 'auto' ? 'checked' : '' }}>
+                    <label class="mode-option" for="mode-auto">Auto</label>
+                    <input class="visually-hidden" type="radio" name="control_mode" id="mode-manual"
+                           value="manual" {{ $selectedTank->control_mode === 'manual' ? 'checked' : '' }}>
+                    <label class="mode-option" for="mode-manual">Manual</label>
+                </div>
+                <button class="mode-save-button" type="submit">Save</button>
+            </form>
+        </div>
+
+    <div class="value-section mb-3">
         <div class="dashboard-section-title">Current Value</div>
         <div class="row g-3">
             @foreach($sensorReadings as $sensor)
                 @php
                     $value = $sensor['value'];
+                    $sensorDomId = [
+                        'pH' => 'ph',
+                        'Turbidity' => 'turbidity',
+                        'Water Level' => 'water-level',
+                    ][$sensor['key']] ?? \Illuminate\Support\Str::slug($sensor['key']);
                     $gaugePercent = max(0, min(100, (($value - $sensor['gauge_min']) / max(1, ($sensor['gauge_max'] - $sensor['gauge_min']))) * 100));
                     $modeClass = $sensor['mode'] === 'Live Data' ? 'text-bg-primary' : 'text-bg-secondary';
                     $statusClass = $sensor['status'] === 'Good' ? 'text-bg-success' : 'text-bg-maroon';
+                    $statusDotClass = $sensor['status'] === 'Good' ? 'is-good' : 'is-warning';
                 @endphp
                 <div class="col-12 col-md-4">
                     <div class="status-card gauge-card text-center sensor-card"
@@ -241,28 +542,62 @@
                          data-value="{{ $value }}"
                          data-low-action="{{ $sensor['device_low'] }}"
                          data-high-action="{{ $sensor['device_high'] }}">
-                        <div class="radial-gauge" style="--gauge-percent: {{ $gaugePercent }}%;">
+                        <div class="fw-semibold gauge-card-title">{{ $sensor['title'] }}</div>
+                        <div class="radial-gauge" id="{{ $sensorDomId }}-gauge" style="--gauge-percent: {{ $gaugePercent }}%;">
                             <div>
-                                <div class="gauge-value">{{ number_format($value, 2) }}</div>
-                                <div class="gauge-unit">{{ $sensor['unit'] }}</div>
+                                <div class="gauge-value" id="{{ $sensorDomId }}-value">{{ number_format($value, 2) }}</div>
+                                <div class="gauge-unit" id="{{ $sensorDomId }}-unit">{{ $sensor['unit'] }}</div>
                             </div>
                         </div>
-                        <div class="fw-semibold">{{ $sensor['title'] }} Gauge</div>
-                        <div class="small muted mb-2">Safe: {{ $sensor['min'] }} - {{ $sensor['max'] }} {{ $sensor['unit'] }}</div>
-                        <div class="small muted mb-2">{{ $sensor['range_source'] }}</div>
-                        <div class="d-flex justify-content-center gap-2 flex-wrap">
-                            <span class="badge {{ $modeClass }}">{{ $sensor['mode'] }}</span>
-                            <span class="badge {{ $statusClass }} sensor-status">{{ $sensor['status'] }}</span>
+                        <div class="gauge-meta">
+                            <div class="small muted mb-2">Safe: {{ $sensor['min'] }} - {{ $sensor['max'] }} {{ $sensor['unit'] }}</div>
+                            <div class="small muted mb-2">{{ $sensor['range_source'] }}</div>
+                            <div class="small fw-semibold gauge-status-line">
+                                <span class="gauge-status-dot {{ $statusDotClass }}"></span>
+                                <span class="sensor-status" id="{{ $sensorDomId }}-status">{{ $sensor['status'] }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             @endforeach
         </div>
+        <div class="system-status-bar">
+            <div class="system-status-message">
+                <span class="system-status-dot"></span>
+                <span id="sensor-connection-status">System status: connection unavailable.</span>
+            </div>
+            <div class="system-status-updated" id="last-updated">Updated: --:--:--</div>
+        </div>
     </div>
 
-    <div class="card card-shadow status-section">
+    <div class="status-section">
         <div class="dashboard-section-title">Current Status</div>
         <div class="row g-3 align-items-stretch">
+            @foreach($doseDevices as $device)
+                <div class="col-12 col-md-6 col-xl-3">
+                    <div class="status-card device-card">
+                        <div>
+                            <div class="device-card-heading">
+                                <div class="status-icon">
+                                    <svg viewBox="0 0 24 24" fill="none">
+                                        <path d="M7 3h10v5l-5 5-5-5V3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                                        <path d="M12 13v8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                                <div class="device-card-title">{{ $device['title'] }}</div>
+                            </div>
+                            <div class="device-card-description">{{ $device['description'] }}</div>
+                        </div>
+                        <div class="device-card-footer">
+                            <button class="btn btn-sm btn-primary w-100 dose-button" type="button"
+                                    data-device="{{ $device['key'] }}"
+                                    data-label="{{ $device['title'] }}">
+                                {{ $device['button'] }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
             @foreach($statusDevices as $device)
                 <div class="col-12 col-md-6 col-xl-3">
                     <div class="status-card device-card">
@@ -298,7 +633,33 @@
                     </div>
                 </div>
             @endforeach
+            @foreach($oneShotDevices as $device)
+                <div class="col-12 col-md-6 col-xl-3">
+                    <div class="status-card device-card">
+                        <div>
+                            <div class="device-card-heading">
+                                <div class="status-icon">
+                                    <svg viewBox="0 0 24 24" fill="none">
+                                        <path d="M5 11h14v9H5v-9Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                                        <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                                <div class="device-card-title">{{ $device['title'] }}</div>
+                            </div>
+                            <div class="device-card-description">{{ $device['description'] }}</div>
+                        </div>
+                        <div class="device-card-footer">
+                            <button class="btn btn-sm btn-outline-primary w-100 one-shot-button" type="button"
+                                    data-device="{{ $device['key'] }}"
+                                    data-label="{{ $device['title'] }}">
+                                {{ $device['button'] }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
         </div>
+    </div>
     </div>
 
     <script>
@@ -310,12 +671,20 @@
         const toastBody = document.getElementById('dashboard-toast-body');
         let toastInstance = null;
         const deviceToggles = Array.from(document.querySelectorAll('.device-toggle'));
+        const doseButtons = Array.from(document.querySelectorAll('.dose-button'));
+        const oneShotButtons = Array.from(document.querySelectorAll('.one-shot-button'));
         let sensorStatusMap = {};
         let recommendedActions = [];
         let pendingManualOverride = null;
+        let modeSubmitTimer = null;
         const csrfToken = '{{ csrf_token() }}';
         const deviceStateUrl = '{{ route('tanks.devices.index', $selectedTank) }}';
         const deviceUpdateUrl = '{{ route('tanks.devices.update', $selectedTank) }}';
+        const doseCommandUrl = '{{ route('tanks.devices.dose', $selectedTank) }}';
+        const latestReadingsUrl = '{{ url('/api/tanks/' . $selectedTank->id . '/latest-readings') }}';
+        const sensorConnectionStatus = document.getElementById('sensor-connection-status');
+        const lastUpdatedEl = document.getElementById('last-updated');
+        const systemStatusBar = document.querySelector('.system-status-bar');
         const modeForm = document.getElementById('mode-form');
         const manualOverrideEl = document.getElementById('manualOverrideModal');
         const manualOverrideMessage = document.getElementById('manualOverrideMessage');
@@ -327,10 +696,7 @@
         }
 
         const deviceMap = {
-            ph_up: document.getElementById('ph_up-toggle'),
-            ph_down: document.getElementById('ph_down-toggle'),
             topup: document.getElementById('topup-toggle'),
-            feeder: document.getElementById('feeder-toggle'),
         };
         const deviceStatusBadges = Array.from(document.querySelectorAll('[data-device-status]'));
         let currentDeviceStates = @json($deviceStates);
@@ -347,6 +713,119 @@
             toastInstance.show();
         }
 
+        function setSensorConnectionAvailable(isAvailable) {
+            if (!systemStatusBar) return;
+            systemStatusBar.classList.toggle('is-online', isAvailable);
+        }
+
+        function setSensorConnectionMessage(message) {
+            if (!sensorConnectionStatus) return;
+            sensorConnectionStatus.textContent = message || 'System status: connection unavailable.';
+        }
+
+        function formatReadingTime(value) {
+            const date = value ? new Date(value) : new Date();
+            if (Number.isNaN(date.getTime())) {
+                return new Date().toLocaleTimeString();
+            }
+            return date.toLocaleTimeString();
+        }
+
+        function updateLastUpdated(recordedAt) {
+            if (!lastUpdatedEl) return;
+            lastUpdatedEl.textContent = 'Updated: ' + formatReadingTime(recordedAt);
+        }
+
+        function applyLatestReadings(data) {
+            const readings = data.readings || {};
+            const responseKeyToSensor = {
+                ph: 'pH',
+                turbidity: 'Turbidity',
+                water_level: 'Water Level',
+            };
+            let newestRecordedAt = null;
+            let didApplyReading = false;
+            let hasOfflineReading = false;
+
+            Object.keys(responseKeyToSensor).forEach((responseKey) => {
+                const reading = readings[responseKey];
+                if (!reading) {
+                    return;
+                }
+
+                const sensorName = responseKeyToSensor[responseKey];
+                const card = sensorCards.find((item) => item.dataset.sensor === sensorName);
+                if (!card) {
+                    return;
+                }
+
+                card.dataset.connectionStatus = reading.status || 'offline';
+                card.dataset.isStale = reading.is_stale ? 'true' : 'false';
+                if (card.dataset.connectionStatus === 'offline' || card.dataset.isStale === 'true') {
+                    hasOfflineReading = true;
+                }
+
+                if (reading.value !== null && reading.value !== undefined) {
+                    const value = parseFloat(reading.value);
+                    if (!Number.isNaN(value)) {
+                        card.dataset.value = String(value);
+                        card.dataset.unit = reading.unit || card.dataset.unit || '';
+                        didApplyReading = true;
+
+                        const unitEl = card.querySelector('.gauge-unit');
+                        if (unitEl) {
+                            unitEl.textContent = card.dataset.unit;
+                        }
+                    }
+                }
+
+                if (reading.recorded_at) {
+                    const recordedDate = new Date(reading.recorded_at);
+                    const currentNewest = newestRecordedAt ? new Date(newestRecordedAt) : null;
+                    if (!currentNewest || recordedDate > currentNewest) {
+                        newestRecordedAt = reading.recorded_at;
+                    }
+                }
+            });
+
+            if (didApplyReading) {
+                updateLastUpdated(newestRecordedAt);
+            }
+            if (data.device_status === 'offline') {
+                setSensorConnectionMessage('System status: IoT device offline. Displaying cached readings.');
+            } else {
+                setSensorConnectionMessage('System status: one or more sensors are offline or stale.');
+            }
+            setSensorConnectionAvailable(!hasOfflineReading);
+            updateDashboard();
+        }
+
+        function pollLatestReadings() {
+            fetch(latestReadingsUrl + '?timestamp=' + Date.now(), {
+                headers: {
+                    'Accept': 'application/json',
+                    'Cache-Control': 'no-store',
+                },
+                cache: 'no-store',
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load latest readings.');
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log('Latest readings response', data);
+                    if (!data.success) {
+                        throw new Error('Latest readings response was not successful.');
+                    }
+                    applyLatestReadings(data);
+                })
+                .catch(() => {
+                    setSensorConnectionMessage('System status: connection unavailable.');
+                    setSensorConnectionAvailable(false);
+                });
+        }
 
         function syncDeviceStates() {
             fetch(deviceStateUrl, {
@@ -395,6 +874,7 @@
         function statusBadge(status) {
             if (status === 'good') return { label: 'Good', className: 'text-bg-success' };
             if (status === 'warning') return { label: 'Warning', className: 'text-bg-maroon' };
+            if (status === 'offline') return { label: 'Offline', className: 'text-bg-secondary' };
             return { label: 'Unknown', className: 'text-bg-secondary' };
         }
 
@@ -402,17 +882,11 @@
             if (getControlMode() !== 'auto') return;
 
             const desired = {
-                ph_up: false,
-                ph_down: false,
                 topup: false,
-                feeder: false,
             };
 
             recommendedActions.forEach((rec) => {
-                if (isActionForDevice(rec.action, 'ph_up')) desired.ph_up = true;
-                if (isActionForDevice(rec.action, 'ph_down')) desired.ph_down = true;
                 if (isActionForDevice(rec.action, 'topup')) desired.topup = true;
-                if (isActionForDevice(rec.action, 'feeder')) desired.feeder = true;
             });
 
             Object.keys(desired).forEach((key) => {
@@ -430,9 +904,15 @@
         }
 
         function persistDeviceState(deviceKey, state) {
+            const toggle = deviceMap[deviceKey];
+            const previousState = !!currentDeviceStates[deviceKey];
+            if (toggle) {
+                toggle.disabled = true;
+            }
+
             currentDeviceStates[deviceKey] = !!state;
             updateDeviceStatusLabels(currentDeviceStates);
-            fetch(deviceUpdateUrl, {
+            return fetch(deviceUpdateUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -443,9 +923,101 @@
                     device_key: deviceKey,
                     state: !!state,
                 }),
-            }).catch(() => {
-                setAlert('Failed to update device state.');
-            });
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        return response.json().catch(() => ({})).then((data) => {
+                            throw new Error(data.error || data.message || 'Failed to update device state.');
+                        });
+                    }
+
+                    return response.json();
+                })
+                .then((data) => {
+                    if (data.states) {
+                        currentDeviceStates = data.states;
+                        Object.keys(deviceMap).forEach((key) => {
+                            if (deviceMap[key]) {
+                                deviceMap[key].checked = !!currentDeviceStates[key];
+                            }
+                        });
+                        updateDeviceStatusLabels(currentDeviceStates);
+                    }
+
+                    setAlert((state ? 'ON' : 'OFF') + ' command sent.');
+                })
+                .catch((error) => {
+                    currentDeviceStates[deviceKey] = previousState;
+                    if (toggle) {
+                        toggle.checked = previousState;
+                    }
+                    updateDeviceStatusLabels(currentDeviceStates);
+                    setAlert(error.message || 'Failed to update device state.');
+                })
+                .finally(() => {
+                    if (toggle) {
+                        toggle.disabled = false;
+                    }
+                });
+        }
+
+        function requestDose(deviceKey, label, button) {
+            if (getControlMode() === 'auto') {
+                setAlert('Auto mode is enabled. Switch to manual before dosing pH.');
+                return;
+            }
+
+            const relatedStatus = sensorStatusMap.pH || null;
+            if (relatedStatus && relatedStatus.status === 'good') {
+                const confirmed = window.confirm('pH is in good condition. Request one ' + label + ' dose anyway?');
+                if (!confirmed) {
+                    return;
+                }
+            }
+
+            button.disabled = true;
+            fetch(doseCommandUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    device_key: deviceKey,
+                }),
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        return response.json().catch(() => ({})).then((data) => {
+                            throw new Error(data.error || data.message || 'Failed to request pH dose.');
+                        });
+                    }
+
+                    return response.json();
+                })
+                .then((data) => {
+                    setAlert(data.message || ('One ' + label + ' dose has been requested.'));
+                })
+                .catch((error) => {
+                    setAlert(error.message || 'Failed to request pH dose.');
+                })
+                .finally(() => {
+                    button.disabled = false;
+                });
+        }
+
+        function requestOneShot(deviceKey, label, button) {
+            if (getControlMode() === 'auto') {
+                setAlert('Auto mode is enabled. Switch to manual before using this control.');
+                return;
+            }
+
+            button.disabled = true;
+            persistDeviceState(deviceKey, true)
+                .finally(() => {
+                    button.disabled = false;
+                });
         }
 
         function updateDashboard() {
@@ -453,6 +1025,7 @@
             let worst = 'good';
             const nextStatusMap = {};
             const nextRecommended = [];
+            let hasOfflineSensor = false;
 
             if (getControlMode() === 'auto') {
                 deviceToggles.forEach((toggle) => {
@@ -465,15 +1038,30 @@
                 const max = parseFloat(card.dataset.max);
                 const unit = card.dataset.unit || '';
                 const value = parseFloat(card.dataset.value);
-                const status = scoreStatus(isNaN(value) ? null : value, isNaN(min) ? null : min, isNaN(max) ? null : max);
+                const isOffline = card.dataset.connectionStatus === 'offline' || card.dataset.isStale === 'true';
+                if (isOffline) {
+                    hasOfflineSensor = true;
+                }
+                const status = isOffline
+                    ? 'offline'
+                    : scoreStatus(isNaN(value) ? null : value, isNaN(min) ? null : min, isNaN(max) ? null : max);
                 const badge = statusBadge(status);
 
-                if (status === 'warning') worst = 'warning';
+                if (status === 'offline') {
+                    worst = 'offline';
+                } else if (status === 'warning' && worst !== 'offline') {
+                    worst = 'warning';
+                }
 
                 const statusEl = card.querySelector('.sensor-status');
                 if (statusEl) {
                     statusEl.textContent = badge.label;
-                    statusEl.className = 'badge ' + badge.className + ' sensor-status';
+                    statusEl.className = 'sensor-status';
+                }
+                const statusDot = card.querySelector('.gauge-status-dot');
+                if (statusDot) {
+                    statusDot.className = 'gauge-status-dot '
+                        + (status === 'good' ? 'is-good' : (status === 'offline' ? 'is-offline' : 'is-warning'));
                 }
 
                 const valueEl = card.querySelector('.sensor-value');
@@ -526,6 +1114,10 @@
                     recommendations.push(card.dataset.sensor + ' is out of range. ' + detail);
                     nextStatusMap[card.dataset.sensor].action = action;
                     nextRecommended.push({ sensor: card.dataset.sensor, status, action });
+                } else if (status === 'offline') {
+                    if (recommendationEl) recommendationEl.textContent = 'Recommendation: Check sensor or WiFi';
+                    if (automationEl) automationEl.textContent = 'Automation: Paused';
+                    recommendations.push(card.dataset.sensor + ' has no fresh reading. Check sensor cable, power, and hotspot/WiFi.');
                 } else {
                     if (recommendationEl) recommendationEl.textContent = 'Recommendation: No data';
                     if (automationEl) automationEl.textContent = 'Automation: --';
@@ -555,6 +1147,10 @@
                         recommendationList.appendChild(li);
                     });
                 }
+            }
+
+            if (sensorConnectionStatus) {
+                setSensorConnectionAvailable(!hasOfflineSensor);
             }
 
             sensorStatusMap = nextStatusMap;
@@ -692,17 +1288,48 @@
             });
         });
 
+        doseButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                requestDose(button.dataset.device, button.dataset.label, button);
+            });
+        });
+
+        oneShotButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                requestOneShot(button.dataset.device, button.dataset.label, button);
+            });
+        });
+
+        function updateCommandButtons() {
+            const disabled = getControlMode() === 'auto';
+            doseButtons.forEach((button) => {
+                button.disabled = disabled;
+            });
+            oneShotButtons.forEach((button) => {
+                button.disabled = disabled;
+            });
+        }
+
         updateDashboard();
+        updateCommandButtons();
+        pollLatestReadings();
+        if (window.aquaWatchLatestReadingsInterval) {
+            clearInterval(window.aquaWatchLatestReadingsInterval);
+        }
+        window.aquaWatchLatestReadingsInterval = setInterval(pollLatestReadings, 2000);
         syncDeviceStates();
         setInterval(syncDeviceStates, 3000);
 
         if (modeForm) {
             modeForm.querySelectorAll('input[name="control_mode"]').forEach((radio) => {
                 radio.addEventListener('change', () => {
-                    modeForm.submit();
+                    updateCommandButtons();
+                    clearTimeout(modeSubmitTimer);
+                    modeSubmitTimer = setTimeout(() => modeForm.submit(), 280);
                 });
             });
         }
+
     </script>
 @endif
 @endsection

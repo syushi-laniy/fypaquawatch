@@ -75,6 +75,13 @@
                     <option value="manual" {{ old('control_mode', $tank->control_mode) === 'manual' ? 'selected' : '' }}>Manual</option>
                 </select>
             </div>
+            <div class="col-12 col-md-6">
+                <label class="form-label">Tank Height (cm)</label>
+                <input class="form-control" type="number" name="tank_height_cm"
+                       value="{{ old('tank_height_cm', $tank->tank_height_cm ?? 20.3) }}"
+                       min="1" max="999.99" step="0.1">
+                <div class="form-text">Measure from the ultrasonic sensor down to the tank bottom.</div>
+            </div>
         </div>
 
         <div class="mt-4 d-flex flex-wrap gap-2">

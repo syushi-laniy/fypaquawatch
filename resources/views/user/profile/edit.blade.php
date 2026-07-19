@@ -5,13 +5,25 @@
 @section('content')
 <style>
     .profile-shell {
+        width: calc(100% - 48px);
         max-width: 880px;
+        margin: 24px auto;
+        padding: 24px;
+        border-radius: 28px;
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        background: rgba(255, 255, 255, 0.20);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        box-shadow:
+            0 12px 35px rgba(25, 73, 110, 0.16),
+            inset 0 1px 0 rgba(255, 255, 255, 0.35);
+        overflow: hidden;
     }
     .settings-card {
-        border: 1px solid #D6E8ED;
-        border-radius: 12px;
-        background: #fff;
-        box-shadow: 0 4px 12px rgba(15, 87, 110, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.72);
+        box-shadow: 0 8px 22px rgba(31, 58, 95, 0.08);
         overflow: hidden;
     }
     .settings-card-header {
@@ -19,8 +31,8 @@
         align-items: center;
         gap: 10px;
         padding: 16px 20px;
-        border-bottom: 1px solid #D6E8ED;
-        background: #fff;
+        border-bottom: 1px solid rgba(214, 232, 237, 0.75);
+        background: rgba(255, 255, 255, 0.36);
         font-weight: 700;
     }
     .settings-icon {
@@ -46,13 +58,25 @@
         justify-content: flex-end;
         margin-top: 18px;
     }
+    .btn-primary {
+        background: linear-gradient(135deg, #0f6c85 0%, #1f8aa5 100%);
+        border: 0;
+    }
+    @media (max-width: 767.98px) {
+        .profile-shell {
+            width: 100%;
+            margin: 0 auto;
+            padding: 16px;
+            border-radius: 22px;
+        }
+    }
 </style>
 
+<div class="profile-shell">
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div class="h4 mb-0 fw-bold">My Profile</div>
 </div>
 
-<div class="profile-shell">
     <div class="card card-shadow settings-card mb-4">
         <div class="settings-card-header">
             <span class="settings-icon">

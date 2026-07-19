@@ -77,6 +77,12 @@
                 <div class="detail-value text-uppercase">{{ $tank->control_mode ?? 'auto' }}</div>
             </div>
         </div>
+        <div class="col-12 col-md-6">
+            <div class="detail-item">
+                <div class="detail-label">Tank Height</div>
+                <div class="detail-value">{{ number_format($tank->tankHeightCm(), 1) }} cm</div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection

@@ -6,6 +6,7 @@ use App\Models\Tank;
 use App\Models\TankAction;
 use App\Models\TankDeviceState;
 use App\Models\TankReading;
+use App\Models\TankThreshold;
 use App\Models\Threshold;
 use Illuminate\Support\Collection;
 use Illuminate\Http\Request;
@@ -93,13 +94,17 @@ class UserDashboardController extends Controller
         $sensorDefinitions = $this->sensorDefinitions();
         $parameters = array_keys($sensorDefinitions);
         $thresholds = Threshold::whereIn('parameter', $parameters)->get()->keyBy('parameter');
+        $tankThresholds = TankThreshold::where('tank_id', $tank->id)
+            ->whereIn('parameter', $parameters)
+            ->get()
+            ->keyBy('parameter');
         $latestReadings = collect();
         $tankSpecies = $tank->species()->get();
         $speciesPhRange = $tankSpecies->isNotEmpty()
             ? $this->calculateSharedSpeciesPhRange($tankSpecies)
             : null;
 
-        $sensorReadings = collect($sensorDefinitions)->map(function (array $definition, string $parameter) use ($tank, $thresholds, $speciesPhRange, &$latestReadings) {
+        $sensorReadings = collect($sensorDefinitions)->map(function (array $definition, string $parameter) use ($tank, $thresholds, $tankThresholds, $speciesPhRange, &$latestReadings) {
             $reading = TankReading::where('tank_id', $tank->id)
                 ->where('parameter', $parameter)
                 ->orderByDesc('recorded_at')
@@ -110,17 +115,35 @@ class UserDashboardController extends Controller
                 $latestReadings->put($parameter, $reading);
             }
 
-            $threshold = $thresholds->get($parameter);
-            $value = $reading ? (float) $reading->value : $definition['demo'];
+            $threshold = $tankThresholds->get($parameter) ?? $thresholds->get($parameter);
+            $rawValue = $reading ? (float) $reading->value : null;
+            $value = $rawValue ?? $definition['demo'];
             $unit = $reading && $reading->unit ? $reading->unit : $definition['unit'];
             $min = $threshold && is_numeric($threshold->min_value) ? (float) $threshold->min_value : $definition['min'];
             $max = $threshold && is_numeric($threshold->max_value) ? (float) $threshold->max_value : $definition['max'];
+            $gaugeMax = $definition['gauge_max'];
             $rangeSource = 'Default Threshold';
 
             if ($parameter === 'pH' && $speciesPhRange) {
                 $min = $speciesPhRange['min'];
                 $max = $speciesPhRange['max'];
                 $rangeSource = 'Species pH Range';
+            }
+
+            if ($parameter === 'Water Level') {
+                $waterThreshold = $tankThresholds->get($parameter);
+                $range = $tank->waterLevelRange(
+                    is_numeric($waterThreshold?->min_value) ? (float) $waterThreshold->min_value : null,
+                    is_numeric($waterThreshold?->max_value) ? (float) $waterThreshold->max_value : null
+                );
+
+                $min = $range['min'];
+                $max = $range['max'];
+                $gaugeMax = $tank->tankHeightCm();
+                $value = $rawValue !== null
+                    ? $tank->actualWaterLevelFromDistance($rawValue)
+                    : min($definition['demo'], $gaugeMax);
+                $rangeSource = $waterThreshold ? 'Tank Water Level Range' : 'Tank Height Range';
             }
 
             return [
@@ -133,7 +156,7 @@ class UserDashboardController extends Controller
                 'min' => $min,
                 'max' => $max,
                 'gauge_min' => $definition['gauge_min'],
-                'gauge_max' => $definition['gauge_max'],
+                'gauge_max' => $gaugeMax,
                 'device_low' => $definition['device_low'],
                 'device_high' => $definition['device_high'],
                 'recorded_at' => $reading?->recorded_at,
@@ -206,11 +229,11 @@ class UserDashboardController extends Controller
             'Water Level' => [
                 'title' => 'Current Water Level',
                 'unit' => 'cm',
-                'demo' => 85,
-                'min' => 20,
-                'max' => 30,
+                'demo' => 17.5,
+                'min' => 15,
+                'max' => 20.3,
                 'gauge_min' => 0,
-                'gauge_max' => 100,
+                'gauge_max' => 20.3,
                 'device_low' => 'Auto Top-up Pump',
                 'device_high' => 'Drain/Overflow',
             ],

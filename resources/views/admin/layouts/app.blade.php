@@ -72,11 +72,17 @@
             <a class="nav-link px-3 py-2 {{ request()->routeIs('admin.tanks.*') ? 'active' : '' }}"
                href="{{ route('admin.tanks.index') }}">Tanks</a>
 
+            <a class="nav-link px-3 py-2 {{ request()->routeIs('admin.tank-requests.*') ? 'active' : '' }}"
+               href="{{ route('admin.tank-requests.index') }}">Tank Requests</a>
+
             <a class="nav-link px-3 py-2 {{ request()->routeIs('parameters.*') ? 'active' : '' }}"
                href="{{ route('parameters.index') }}">Parameters</a>
 
             <a class="nav-link px-3 py-2 {{ request()->routeIs('thresholds.*') ? 'active' : '' }}"
                href="{{ route('thresholds.index') }}">Thresholds</a>
+
+            <a class="nav-link px-3 py-2 {{ request()->routeIs('admin.species.*') ? 'active' : '' }}"
+               href="{{ route('admin.species.index') }}">Fish Species</a>
 
             <a class="nav-link px-3 py-2 {{ request()->routeIs('automation-rules.*') ? 'active' : '' }}"
                href="{{ route('automation-rules.index') }}">Automation Rules</a>

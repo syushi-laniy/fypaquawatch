@@ -11,7 +11,7 @@ class CommunityCalculatorController extends Controller
     public function index()
     {
         return view('community-calculator.index', [
-            'species' => Species::orderBy('name')->get(),
+            'species' => Species::where('is_active', true)->orderBy('name')->get(),
             'selectedIds' => [],
             'selectedSpecies' => collect(),
             'result' => null,
@@ -25,12 +25,13 @@ class CommunityCalculatorController extends Controller
             'species_ids.*' => 'integer|exists:species,id',
         ]);
 
-        $selectedSpecies = Species::whereIn('id', $data['species_ids'])
+        $selectedSpecies = Species::where('is_active', true)
+            ->whereIn('id', $data['species_ids'])
             ->orderBy('name')
             ->get();
 
         return view('community-calculator.index', [
-            'species' => Species::orderBy('name')->get(),
+            'species' => Species::where('is_active', true)->orderBy('name')->get(),
             'selectedIds' => $selectedSpecies->pluck('id')->all(),
             'selectedSpecies' => $selectedSpecies,
             'result' => $this->calculateSharedPhRange($selectedSpecies),
@@ -51,7 +52,9 @@ class CommunityCalculatorController extends Controller
             ]);
         }
 
-        $selectedSpecies = Species::whereIn('id', $data['species_ids'])->get();
+        $selectedSpecies = Species::where('is_active', true)
+            ->whereIn('id', $data['species_ids'])
+            ->get();
         $result = $this->calculateSharedPhRange($selectedSpecies);
         if (!$result['compatible']) {
             return redirect()->route('community.index')->withErrors([

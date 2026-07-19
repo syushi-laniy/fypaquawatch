@@ -35,13 +35,6 @@ return [
         'token' => env('TELEGRAM_BOT_TOKEN'),
     ],
 
-    'stripe' => [
-        'key' => env('STRIPE_KEY'),
-        'secret' => env('STRIPE_SECRET'),
-        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
-    ],
-
-
 'gemini' => [
     'key' => env('GEMINI_API_KEY'),
 ],

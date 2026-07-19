@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Tank;
 use App\Models\TankReading;
+use App\Models\TankThreshold;
 use App\Models\Threshold;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class SensorHistoryController extends Controller
 {
@@ -46,8 +48,11 @@ class SensorHistoryController extends Controller
 
         $isDemo = $readings->isEmpty();
         $historyRows = $isDemo
-            ? $this->demoRows($parameters, $thresholds)
-            : $this->realRows($readings, $thresholds);
+            ? $this->demoRows($parameters, $thresholds, $selectedTank)
+            : $this->realRows($selectedTank, $readings, $thresholds);
+
+        $sortedHistoryRows = $historyRows->sortByDesc('recorded_at')->values();
+        $historyRowsPage = $this->paginateRows($request, $sortedHistoryRows, 10);
 
         [$chartLabels, $chartDatasets] = $this->chartData($historyRows, $parameters);
 
@@ -55,7 +60,7 @@ class SensorHistoryController extends Controller
             'selectedTank' => $selectedTank,
             'selectedParameter' => $selectedParameter,
             'parameters' => self::PARAMETERS,
-            'historyRows' => $historyRows->sortByDesc('recorded_at')->values(),
+            'historyRows' => $historyRowsPage,
             'chartLabels' => $chartLabels,
             'chartDatasets' => $chartDatasets,
             'isDemo' => $isDemo,
@@ -81,28 +86,62 @@ class SensorHistoryController extends Controller
         return $tank;
     }
 
-    private function realRows(Collection $readings, Collection $thresholds): Collection
+    private function paginateRows(Request $request, Collection $rows, int $perPage): LengthAwarePaginator
     {
-        return $readings->map(function (TankReading $reading) use ($thresholds) {
+        $page = LengthAwarePaginator::resolveCurrentPage();
+        $items = $rows->forPage($page, $perPage)->values();
+
+        return new LengthAwarePaginator(
+            $items,
+            $rows->count(),
+            $perPage,
+            $page,
+            [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
+    }
+
+    private function realRows(Tank $tank, Collection $readings, Collection $thresholds): Collection
+    {
+        $tankThresholds = TankThreshold::where('tank_id', $tank->id)
+            ->whereIn('parameter', self::PARAMETERS)
+            ->get()
+            ->keyBy('parameter');
+        $speciesPhRange = $this->speciesPhRangeForTank($tank);
+
+        return $readings->map(function (TankReading $reading) use ($tank, $thresholds, $tankThresholds, $speciesPhRange) {
             $value = is_numeric($reading->value) ? (float) $reading->value : null;
+            $displayValue = $reading->value;
+
+            if ($reading->parameter === 'Water Level' && $value !== null) {
+                $value = $tank->actualWaterLevelFromDistance($value);
+                $displayValue = number_format($value, 2);
+            }
 
             return [
                 'recorded_at' => $reading->recorded_at ?? $reading->created_at,
                 'parameter' => $reading->parameter,
                 'value' => $value,
-                'display_value' => $reading->value,
+                'display_value' => $displayValue,
                 'unit' => $reading->unit ?: $this->defaultUnit($reading->parameter),
-                'status' => $this->statusFor($reading->parameter, $value, $thresholds),
+                'status' => $this->statusFor($reading->parameter, $value, $thresholds, $tank, $tankThresholds, $speciesPhRange),
             ];
         });
     }
 
-    private function demoRows(array $parameters, Collection $thresholds): Collection
+    private function demoRows(array $parameters, Collection $thresholds, ?Tank $tank = null): Collection
     {
+        $tankThresholds = $tank
+            ? TankThreshold::where('tank_id', $tank->id)->whereIn('parameter', self::PARAMETERS)->get()->keyBy('parameter')
+            : collect();
+        $speciesPhRange = $tank ? $this->speciesPhRangeForTank($tank) : null;
+
         $samples = [
             'pH' => [7.0, 7.1, 7.2, 7.3, 7.2, 7.4, 7.3, 7.2],
             'Turbidity' => [4, 5, 6, 5, 4, 7, 5, 4],
-            'Water Level' => [26, 25.5, 25, 24.5, 24, 25, 25.5, 26],
+            'Water Level' => [17.8, 17.5, 17.1, 16.8, 16.4, 16.9, 17.3, 17.7],
         ];
 
         $rows = collect();
@@ -115,7 +154,7 @@ class SensorHistoryController extends Controller
                     'value' => (float) $value,
                     'display_value' => $value,
                     'unit' => $this->defaultUnit($parameter),
-                    'status' => $this->statusFor($parameter, (float) $value, $thresholds),
+                    'status' => $this->statusFor($parameter, (float) $value, $thresholds, $tank, $tankThresholds, $speciesPhRange),
                 ]);
             }
         }
@@ -123,16 +162,39 @@ class SensorHistoryController extends Controller
         return $rows;
     }
 
-    private function statusFor(string $parameter, ?float $value, Collection $thresholds): string
+    private function statusFor(
+        string $parameter,
+        ?float $value,
+        Collection $thresholds,
+        ?Tank $tank = null,
+        ?Collection $tankThresholds = null,
+        ?array $speciesPhRange = null
+    ): string
     {
         if ($value === null) {
             return 'Warning';
         }
 
+        if ($parameter === 'pH' && $speciesPhRange) {
+            return $value >= $speciesPhRange['min'] && $value <= $speciesPhRange['max']
+                ? 'Good'
+                : 'Warning';
+        }
+
+        if ($parameter === 'Water Level' && $tank) {
+            $waterThreshold = $tankThresholds?->get($parameter);
+            $range = $tank->waterLevelRange(
+                is_numeric($waterThreshold?->min_value) ? (float) $waterThreshold->min_value : null,
+                is_numeric($waterThreshold?->max_value) ? (float) $waterThreshold->max_value : null
+            );
+
+            return $value >= $range['min'] && $value <= $range['max'] ? 'Good' : 'Warning';
+        }
+
         $defaults = [
             'pH' => [6.5, 7.5],
             'Turbidity' => [0, 5],
-            'Water Level' => [20, 30],
+            'Water Level' => [15, 20.3],
         ];
         $threshold = $thresholds->get($parameter);
         $min = $threshold && is_numeric($threshold->min_value)
@@ -143,6 +205,26 @@ class SensorHistoryController extends Controller
             : $defaults[$parameter][1];
 
         return $value >= $min && $value <= $max ? 'Good' : 'Warning';
+    }
+
+    private function speciesPhRangeForTank(Tank $tank): ?array
+    {
+        $species = $tank->species()->get();
+        if ($species->isEmpty()) {
+            return null;
+        }
+
+        $min = (float) $species->max('min_ph');
+        $max = (float) $species->min('max_ph');
+
+        if ($min > $max) {
+            return null;
+        }
+
+        return [
+            'min' => $min,
+            'max' => $max,
+        ];
     }
 
     private function chartData(Collection $rows, array $parameters): array

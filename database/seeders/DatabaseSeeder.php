@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
             ThresholdSeeder::class,
             AutomationRuleSeeder::class,
             SpeciesSeeder::class,
-            ProductSeeder::class,
         ]);
     }
 }

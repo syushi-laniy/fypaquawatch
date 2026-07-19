@@ -16,11 +16,13 @@ class Species extends Model
         'max_ph',
         'description',
         'image_path',
+        'is_active',
     ];
 
     protected $casts = [
         'min_ph' => 'float',
         'max_ph' => 'float',
+        'is_active' => 'boolean',
     ];
 
     public function tanks(): BelongsToMany

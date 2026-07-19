@@ -11,7 +11,7 @@ class SpeciesSelectionController extends Controller
     public function index(Request $request)
     {
         $tank = $this->resolveSelectedTank($request);
-        $species = Species::orderBy('name')->get();
+        $species = Species::where('is_active', true)->orderBy('name')->get();
         $selectedSpecies = $tank
             ? $tank->species()->orderBy('name')->get()
             : collect();
@@ -43,7 +43,12 @@ class SpeciesSelectionController extends Controller
             'species_ids.*' => 'integer|exists:species,id',
         ]);
 
-        $tank->species()->sync($data['species_ids'] ?? []);
+        $activeSpeciesIds = Species::where('is_active', true)
+            ->whereIn('id', $data['species_ids'] ?? [])
+            ->pluck('id')
+            ->all();
+
+        $tank->species()->sync($activeSpeciesIds);
 
         return redirect()->route('species.index')->with('success', 'Tank species updated.');
     }
